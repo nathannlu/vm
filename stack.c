@@ -64,6 +64,16 @@ void print_stack(const struct Stack* stack) {
           printf("NUMBER(%f)\n", ptr->number);
           break;
         // Add cases for other types if needed
+        case OBJECT:
+          if(ptr->object->type == STRING) {
+            printf("OBJECT(%s)\n", (char*)ptr->object->data);
+
+          } else {
+            printf("Unknown Type\n");
+          }
+
+          break;
+         
         default:
           printf("Unknown Type\n");
           break;
