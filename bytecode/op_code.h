@@ -16,4 +16,6 @@
 #define OP_GET_GLOBAL 0x09
 #define OP_SET_GLOBAL 0x10
 
+#define OP_CALL 0x11
+
 #endif 

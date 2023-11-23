@@ -33,6 +33,8 @@ void push(struct Stack *stack, struct vm_value value) {
   }
 }
 
+// @todo
+// does this actually delete the item from the stack?
 struct vm_value pop(struct Stack *stack) {
   if(is_empty(stack)) {
     printf("Stack underflow");
@@ -52,6 +54,16 @@ struct vm_value pop(struct Stack *stack) {
   }
 }
 
+struct vm_value peek(struct Stack *stack, size_t offset) {
+  if(is_empty(stack)) {
+    printf("Stack underflow");
+    exit(EXIT_FAILURE);
+  } else {
+    return *(stack->sp  - offset);
+  }
+}
+
+
 void print_stack(const struct Stack* stack) {
   printf("Stack Pointer:%p\n", (void*)stack->sp);
   printf("Stack Memory Layout:\n");
@@ -64,11 +76,24 @@ void print_stack(const struct Stack* stack) {
           printf("NUMBER(%f)\n", ptr->number);
           break;
         // Add cases for other types if needed
+        case BOOLEAN:
+          if(ptr->boolean == true) {
+            printf("BOOLEAN(true)\n");
+          } else {
+            printf("BOOLEAN(false)\n");
+          }
+
+          break;
+        // Add cases for other types if needed
         case OBJECT:
           if(ptr->object->type == STRING) {
             printf("OBJECT(%s)\n", (char*)ptr->object->data);
 
-          } else {
+          } 
+          else if(ptr->object->type == FUNCTION) {
+            printf("FUNCTION()\n");
+          }
+          else {
             printf("Unknown Type\n");
           }
 

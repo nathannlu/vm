@@ -17,6 +17,7 @@ bool is_full(const struct Stack *stack);
 bool is_empty(const struct Stack *stack);
 void push(struct Stack *stack, struct vm_value value);
 struct vm_value pop(struct Stack *stack);
+struct vm_value peek(struct Stack *stack, size_t offset);
 void print_stack(const struct Stack* stack);
 
 #endif 

@@ -1,0 +1,1 @@
+- in main.c, struct constants pool is statically defined. it needs to generate constants from bytecode or from compiler
