@@ -1,0 +1,2 @@
+- add constant pool to bytecode
+- support other operations
