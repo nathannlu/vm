@@ -4,6 +4,7 @@
 
 void initialize(struct Stack *stack) {
   stack->sp = NULL;
+  stack->bp = &stack->data[0];
 }
 
 // @todo 
@@ -63,9 +64,23 @@ struct vm_value peek(struct Stack *stack, size_t offset) {
   }
 }
 
+int get_index(struct Stack *stack, struct vm_value value) {
+  if(is_empty(stack)) {
+    printf("Stack underflow");
+    exit(EXIT_FAILURE);
+  } else {
+    for(struct vm_value* i = stack->sp; i > stack->bp; i--) {
+      if(vm_value_cmp(*i, value)) {
+        return (int)(i - stack->bp);
+      }
+    }
+  }
+  return -1;
+}
 
 void print_stack(const struct Stack* stack) {
   printf("Stack Pointer:%p\n", (void*)stack->sp);
+  printf("Base Pointer:%p\n", (void*)stack->bp);
   printf("Stack Memory Layout:\n");
   for (const struct vm_value *ptr = stack->data; ptr < stack->data + STACK_LIMIT; ++ptr) {
 

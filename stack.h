@@ -1,15 +1,27 @@
+/**
+ * Value stack implementation
+ */
+
 #ifndef STACK_H
 #define STACK_H
 
 #include <stdbool.h>
-#include "value.h"
+#include "objects/value.h"
 
 //#define STACK_LIMIT 512
 #define STACK_LIMIT 10
 
+
 struct Stack {
   struct vm_value   data[STACK_LIMIT];
-  struct vm_value   *sp; // stack pointer
+
+  // stack pointer - points to the latest value in the stack.
+  // if there is none points to null
+  struct vm_value   *sp; 
+
+  // base pointer - points to the
+  // starting address of the stack
+  struct vm_value   *bp; 
 };
 
 void initialize(struct Stack *stack);

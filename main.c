@@ -4,41 +4,14 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "heap/allocation.c"
 #include "bytecode/op_code.h"
+#include "objects/codeobject.h"
 #include "stack.c"
 
-#include "global.h"
 
-
-
-/**
- * testing bytecode: (set x (+ x 10))
- * result should be 20
- */
-uint8_t bytecode[] = {
-  OP_GET_GLOBAL,  3,
-  OP_CONST,       0,                  // push NUMBER(42.0) onto the stack
-  OP_CONST,       1,                  // push NUMBER(64.0) onto the stack
-  OP_CALL,        2,                  // function call parameter
-  OP_HALT
-};
-/*
-uint8_t bytecode[] = {
-  OP_CONST,
-  0,                  // store the index of the value in the constant pool
-  OP_CONST,
-  1,
-  OP_COMPARE,
-  1,
-  OP_JMP_IF_FALSE,
-  0,
-  0,
-  OP_HALT
-};
-*/
 
 uint8_t *ip; // instruction pointer - always points to the next instruction
-
 
 /**
  * Returns byte and moves pointer to next value
@@ -46,6 +19,8 @@ uint8_t *ip; // instruction pointer - always points to the next instruction
 uint8_t read_byte() {
   // get value of instruction pointer
   uint8_t val = *ip;
+
+  printf("read val: %u\n", val);
   
   // move to next byte
   ip++;
@@ -102,45 +77,12 @@ uint8_t* load_bytecode(const char* path) {
   return bytecode;
 }
 
-
 void eval() {
+  struct code_object* co = alloc_main();
+  ip = co->co;
+
   struct Stack stack;
   initialize(&stack);
-
-  struct vm_value constants[10] = {
-    NUMBER(42.0),
-    NUMBER(64.0),
-    //ALLOC_STRING("hello"),
-    //ALLOC_STRING(", world"),
-  };
-
-
-  void test_func() {
-    printf("hello world");
-  }
-  // @todo
-  void sum_func() {
-    struct vm_value b = pop(&stack);
-    struct vm_value a = pop(&stack);
-
-    // convert a and b to doubles
-    double double_a = AS_NUMBER(a);
-    double double_b = AS_NUMBER(b);
-
-    // add 
-    double result = double_a + double_b; 
-
-    // put value back on the stack
-    push(&stack, NUMBER(result));
-  }
-
-  struct global globals[10] = {
-    {"x", NUMBER(10.0)},
-    {"y", NUMBER(20.0)},
-    {"square", ALLOC_FUNC((void*)&test_func)},
-    {"sum", ALLOC_FUNC((void*)&sum_func)},
-  };
-
 
   for(;;) {
     switch (read_byte()) {
@@ -153,16 +95,13 @@ void eval() {
 
         // move instruction pointer to next byte
         // and get next value
-
-        // @question
-        // why do you need to push to stack if it already exists
-        // in constant pool?
         uint8_t constant_pool_index = read_byte();
-        struct vm_value x = constants[constant_pool_index];
-        printf("constant pool value:%f\n", x);
+
+        //uint8_t constant_pool_index = read_byte();
+        struct vm_value x = co->constants[constant_pool_index];
 
         // push it to the stack
-        push(&stack, x);
+        push(&stack,x);
         break;
 
       case OP_ADD:
@@ -260,7 +199,7 @@ void eval() {
 
           // set the instruction pointer to 
           // the address bytes on the bytecode
-          ip = &bytecode[address_index];
+          ip = &co->co[address_index];
           printf("Jumping to bytecode index: 0x%04X, address: %p\n", address_index, ip);
         }
         break;
@@ -271,7 +210,7 @@ void eval() {
         uint8_t global_index = read_byte();
 
         // look in globals pool for constant
-        struct global result = globals[global_index];
+        struct global result = co->globals[global_index];
 
         // push constant value onto the stack
         push(&stack, result.value);
@@ -283,45 +222,112 @@ void eval() {
         uint8_t gi = read_byte();
         struct vm_value value = peek(&stack, 0);
 
-        set_global(globals, gi, value);
+        set_global(co->globals, gi, value);
 
         break;
 
       case OP_CALL:
+        printf("instruction call func\n");
         // get func call param number
         uint8_t args_count = read_byte();
         struct vm_value f = peek(&stack, args_count);
 
-        // @todo fix - this only pops the amount
-        // for now
-        // --
-        // you need to make this so it moves the function
-        // to the top of the stack
-        // --
-        // then the function can pop
-        // the values
-        /*
-        for (int i = 0; i < arity; i++) {
+        //struct vm_value f = pop(&stack);
+
+        bool is_native_function = false;
+        if(is_native_function) {
+          /**
+           * Native function
+           */
+          void (*func_handler)() = (void (*)())f.object->data;
+          func_handler();
+          struct vm_value r = pop(&stack);
+
+          // after you are done with func,
+          // pop all args.
+          // ( + 1 for the func on stack too)
+          for(int j = 0; j < args_count + 1; j++) {
+            pop(&stack);
+          }
+
+          push(&stack, r);
+        } else {
+          /**
+           * User-defined functions
+           */
+
+          // change void* data to a code_object*
+          struct code_object* prev_co = co;
+
+          // pop one argument
+          // @todo store it in a frame context
+          // so you can restore it later
+          pop(&stack);
+
+          co = (struct code_object*)f.object->data;
+          ip = &co->co[0];
+
+          //printf("got bytecode at: %p\n", (void*)cf->co);
+        }
+
+        break;
+
+      case OP_GET_LOCAL:
+        printf("instruction get local\n");
+        // globals are stored in the global array context
+        // local_index describes the position of the local variable
+        // (which exists on the stack) relative to the bp;
+        uint8_t local_index = read_byte();
+
+        // look in globals pool for constant
+        if(stack.bp == NULL) {
+          printf("No values found\n");
+        } else {
+          struct vm_value l_result = stack.bp[local_index];
+
+          // push constant value onto the stack
+          push(&stack, l_result);
+        }
+
+        break;
+
+      case OP_SET_LOCAL:
+        printf("instruction set local\n");
+
+        // this is the value to set to stack
+        //struct vm_value l_value = peek(&stack, 0);
+
+        // li is the index for the value in constant arr?
+        read_byte();
+        //uint8_t locals_arr_index = read_byte();
+
+        // @todo
+        // check if value at bp is same scope, if it is not
+        // then update bp
+
+        break;
+
+      case OP_SCOPE_EXIT:
+        uint8_t scope_vars_count = read_byte();
+        struct vm_value scoped_res = pop(&stack);
+
+        // pop all args.
+        // ( + 1 for the func on stack too)
+        for(int p = 0; p < scope_vars_count; p++) {
           pop(&stack);
         }
-        */
 
-        // execute func
+        // @todo
+        // instead of setting bp = NULL, move
+        // bp to the next scope up
+        stack.bp = NULL;
 
-        //struct vm_value f = pop(&stack);
-        void (*func_handler)() = (void (*)())f.object->data;
-        func_handler();
-
-
-        // get params
-        //struct vm_value value = peek(&stack, arity);
-
-        // invoke function with parameters
+        push(&stack, scoped_res);
 
         break;
 
       default:
-        printf("Unknown opcode");
+        printf("Unknown opcode\n");
 
     }
 
@@ -331,7 +337,6 @@ void eval() {
 
 void exec() {
   //bytecode = load_bytecode("bytecode/data.bin");
-  ip = &bytecode[0];
 
   return eval();
 }

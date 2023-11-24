@@ -13,15 +13,6 @@ struct global {
   struct vm_value value;
 };
 
-//struct global globals[10];
-/*
-struct global globals[10] = {
-  {"x", NUMBER(10.0)},
-  {"y", NUMBER(20.0)},
-  {"square", ALLOC_FUNC((void*)&square)},
-};
-*/
-
 int get_global_index(struct global globals[], const char* name) {
   for (int i = 0; i < MAX_ARRAY_SIZE; i++) {
     if(strcmp(globals[i].name, name) == 0) {
@@ -30,6 +21,21 @@ int get_global_index(struct global globals[], const char* name) {
   }
 
   return -1;
+}
+
+/**
+ * Allocate space on the heap for globals array
+ */
+struct global* ALLOC_GLOBALS(struct global* values) {
+  size_t size = sizeof(values[0]) / sizeof(values);
+  struct global* array = (struct global*)allocate_heap(size * sizeof(struct global));
+
+  // Copy values to the dynamic array
+  for (size_t i = 0; i < size; ++i) {
+    array[i] = values[i];
+  }
+
+  return array;
 }
 
 /**

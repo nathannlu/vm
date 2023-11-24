@@ -18,4 +18,9 @@
 
 #define OP_CALL 0x11
 
+#define OP_GET_LOCAL 0x12
+#define OP_SET_LOCAL 0x13
+
+#define OP_SCOPE_EXIT 0x14
+
 #endif 
