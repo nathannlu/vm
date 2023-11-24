@@ -23,4 +23,6 @@
 
 #define OP_SCOPE_EXIT 0x14
 
+#define OP_RETURN 0x15
+
 #endif 

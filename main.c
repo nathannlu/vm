@@ -8,6 +8,7 @@
 #include "bytecode/op_code.h"
 #include "objects/codeobject.h"
 #include "stack.c"
+#include "callstack.c"
 
 
 
@@ -83,6 +84,9 @@ void eval() {
 
   struct Stack stack;
   initialize(&stack);
+
+  struct callstack cstack;
+  callstack_initialize(&cstack);
 
   for(;;) {
     switch (read_byte()) {
@@ -230,26 +234,26 @@ void eval() {
         printf("instruction call func\n");
         // get func call param number
         uint8_t args_count = read_byte();
-        struct vm_value f = peek(&stack, args_count);
+        struct vm_value fn = peek(&stack, args_count);
 
-        //struct vm_value f = pop(&stack);
-
+        // @temp disable
         bool is_native_function = false;
         if(is_native_function) {
           /**
            * Native function
            */
-          void (*func_handler)() = (void (*)())f.object->data;
+          void (*func_handler)() = (void (*)())fn.object->data;
           func_handler();
-          struct vm_value r = pop(&stack);
 
           // after you are done with func,
-          // pop all args.
-          // ( + 1 for the func on stack too)
+          // 1. pop result
+          // 2. pop all args.
+          //    ( + 1 for the func on stack too)
+          // 3. push result back to value stack
+          struct vm_value r = pop(&stack);
           for(int j = 0; j < args_count + 1; j++) {
             pop(&stack);
           }
-
           push(&stack, r);
         } else {
           /**
@@ -259,13 +263,28 @@ void eval() {
           // change void* data to a code_object*
           struct code_object* prev_co = co;
 
-          // pop one argument
-          // @todo store it in a frame context
-          // so you can restore it later
-          pop(&stack);
+          // @todo
+          // save current context to call stack
+          struct frame f;
+          f.ra = ip;
+          f.bp = stack.bp;
+          f.co = co;
 
-          co = (struct code_object*)f.object->data;
+          callstack_push(&cstack, f);
+
+
+
+          // load locals, globals, constants
+          co = (struct code_object*)fn.object->data;
+
+          // @todo - implement arguments
+          // set bp to the first argument of the func
+          // e.g. arg1 = index 0, arg2 = index 1;
+          
+          // set instruction pointer to the beginning of new bytecode
+          printf("Jumping to bytecode from (%p) to: %p\n", (void*)ip, (void*)&co->co[0]);
           ip = &co->co[0];
+
 
           //printf("got bytecode at: %p\n", (void*)cf->co);
         }
@@ -308,12 +327,16 @@ void eval() {
         break;
 
       case OP_SCOPE_EXIT:
+        printf("instruction scope exit\n");
         uint8_t scope_vars_count = read_byte();
-        struct vm_value scoped_res = pop(&stack);
 
-        // pop all args.
-        // ( + 1 for the func on stack too)
-        for(int p = 0; p < scope_vars_count; p++) {
+        // after you are done with func,
+        // 1. pop result
+        // 2. pop all args.
+        //    ( + 1 for the func on stack too)
+        // 3. push result back to value stack
+        struct vm_value scoped_res = pop(&stack);
+        for(int p = 0; p < scope_vars_count + 1; p++) {
           pop(&stack);
         }
 
@@ -326,12 +349,27 @@ void eval() {
 
         break;
 
+      case OP_RETURN:
+        printf("instruction return\n");
+        // get frame from top of stack
+        struct frame caller_frame = callstack_pop(&cstack);
+
+
+        printf("Jumping to bytecode from (%p) to: %p\n", (void*)ip, (void*)caller_frame.ra);
+        co = caller_frame.co;
+        ip = caller_frame.ra;
+        stack.bp = caller_frame.bp;
+
+
       default:
         printf("Unknown opcode\n");
 
     }
 
+    printf("---\n");
+    printf("Instruction pointer: %p\n", (void*)ip);
     print_stack(&stack);
+    printf("----------------------\n");
   }
 }
 

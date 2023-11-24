@@ -53,7 +53,8 @@ struct code_object* alloc_func1() {
     OP_CONST,   0,  // push NUMBER(42.0) onto the stack
     OP_CONST,   1,  // push NUMBER(64.0) onto the stack
     OP_ADD,
-    OP_HALT
+    OP_SCOPE_EXIT, 0,  // pop everything but the result
+    OP_RETURN,
   };
   struct vm_value constants[10] = {
     NUMBER(42.0),
@@ -75,13 +76,16 @@ struct code_object* alloc_main() {
   struct vm_value func_1 = ALLOC_OBJECT((void*)alloc_func1());
 
   uint8_t bytecode[] = {
-    OP_CONST,   0,  // push NUMBER(42.0) onto the stack
+    OP_CONST,   1,  // push NUMBER(10.0) onto the stack
+    OP_CONST,   0,  // push func onto the stack
     OP_CALL,    0,
+    OP_ADD,
     OP_HALT
   };
 
   struct vm_value constants[10] = {
     func_1,
+    NUMBER(10.0),
   };
   struct global globals[10] = {
     {"x", NUMBER(10.0)},
