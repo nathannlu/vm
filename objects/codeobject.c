@@ -1,21 +1,4 @@
-#ifndef CODE_OBJECT_H 
-#define CODE_OBJECT_H 
-
-#include "value.h"
-#include "global.h"
-#include "local.h"
-#include "object.h"
-
-struct code_object {
-  char name[MAX_GLOBAL_NAME_SIZE];
-
-  struct vm_value *constants;
-  struct global *globals;
-  struct local *locals;
-
-  // bytecode;
-  uint8_t *co;
-};
+#include "codeobject.h"
 
 // global funcs
 void test_func() {
@@ -104,7 +87,3 @@ struct code_object* alloc_main() {
 }
 
 
-
-
-
-#endif

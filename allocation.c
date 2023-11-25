@@ -1,4 +1,9 @@
+#include <stddef.h>
+#include <stdlib.h>
 #include "allocation.h"
+
+struct allocation* allocation_list = NULL;
+size_t bytes_allocated = 0;
 
 // Track allocation manually
 void track_allocation(void*address, size_t size) {

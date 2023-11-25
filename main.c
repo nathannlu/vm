@@ -4,13 +4,17 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "heap/allocation.c"
-#include "bytecode/op_code.h"
-#include "objects/codeobject.h"
-#include "stack.c"
-#include "callstack.c"
+#include "value.h"
+#include "codeobject.h"
+#include "allocation.h"
+#include "stack.h"
+#include "callstack.h"
+#include "op_code.h"
 
-
+/*
+allocation_list = NULL;
+bytes_allocated = 0
+*/
 
 uint8_t *ip; // instruction pointer - always points to the next instruction
 
@@ -293,9 +297,16 @@ void eval() {
 
       case OP_GET_LOCAL:
         printf("instruction get local\n");
-        // globals are stored in the global array context
         // local_index describes the position of the local variable
         // (which exists on the stack) relative to the bp;
+        //
+        // since local variables are defined at the beginning of the 
+        // stackframe and bp points to the start of the frame, you can
+        // later retrieve the local variable by the offset of the bp
+        //
+        // @important
+        // this assumes local variables are initialized at the 
+        // start of the frame once we enter the frame
         uint8_t local_index = read_byte();
 
         // look in globals pool for constant
@@ -312,17 +323,21 @@ void eval() {
 
       case OP_SET_LOCAL:
         printf("instruction set local\n");
+        uint8_t _local_index = read_byte();
 
-        // this is the value to set to stack
-        //struct vm_value l_value = peek(&stack, 0);
-
-        // li is the index for the value in constant arr?
-        read_byte();
-        //uint8_t locals_arr_index = read_byte();
-
-        // @todo
-        // check if value at bp is same scope, if it is not
-        // then update bp
+        if(stack.bp == NULL) {
+          printf("No values found\n");
+        } else {
+          // check the most recent value on the stack
+          // and set the local (defined at the start
+          // of the stack) with value.
+          //
+          // @important
+          // this assumes local variables are initialized at the 
+          // start of the frame once we enter the frame
+          struct vm_value to_set_local = peek(&stack, 0);
+          stack.bp[_local_index] = to_set_local;
+        }
 
         break;
 
@@ -381,9 +396,7 @@ void exec() {
 
 
 int main() {
-  printf("Bytes allocated: %zu\n",bytes_allocated);
   exec();
-  printf("Bytes allocated: %zu\n",bytes_allocated);
 
   return 0;
 }

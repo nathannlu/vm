@@ -6,7 +6,7 @@
 #define STACK_H
 
 #include <stdbool.h>
-#include "objects/value.h"
+#include "value.h"
 
 //#define STACK_LIMIT 512
 #define STACK_LIMIT 10

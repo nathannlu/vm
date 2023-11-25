@@ -6,8 +6,7 @@
 #define CALLSTACK_H
 
 #include <stdbool.h>
-#include "objects/value.h"
-#include "objects/codeobject.h"
+#include "codeobject.h"
 
 //#define STACK_LIMIT 512
 #define STACK_LIMIT 10

@@ -1,17 +1,4 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
-
-#include <stdio.h>
-#include <string.h>
-#include "value.h"
-
-#define MAX_ARRAY_SIZE 10
-#define MAX_GLOBAL_NAME_SIZE 10
-
-struct global {
-  char name[MAX_GLOBAL_NAME_SIZE];
-  struct vm_value value;
-};
+#include "global.h"
 
 int get_global_index(struct global globals[], const char* name) {
   for (int i = 0; i < MAX_ARRAY_SIZE; i++) {
@@ -62,4 +49,3 @@ void set_global(struct global globals[], int index, struct vm_value value) {
   return;
 }
 
-#endif
