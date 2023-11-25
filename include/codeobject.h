@@ -18,7 +18,7 @@ struct code_object {
   struct local *locals;
 
   // bytecode;
-  uint8_t *co;
+  //uint8_t *co;
   uint8_t *bytecode;
 };
 

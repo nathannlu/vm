@@ -22,51 +22,7 @@ bool vm_value_cmp(struct vm_value value1, struct vm_value value2) {
   }
 }
 
-// returns a vm_value
-/*
-struct vm_value ALLOC_OBJECT(void *value) {
-  // create base object
-  size_t obj_size = sizeof(struct object);
-  struct object *obj = (struct object*)allocate_heap(obj_size);
-  obj->type = FUNCTION;
-  obj->data = value;
-
-  struct vm_value result;
-  result.type = OBJECT;
-  result.object = obj;  // this is the same for some reason
-
-  return result;
-}
-
-// returns a vm_value for string
-struct vm_value ALLOC_STRING(const char *value) {
-
-  // create string object
-  size_t str_size = strlen(value) + 1;
-  void *str_obj = (void*)strdup(value);
-  track_allocation(str_obj, str_size);
-
-
-  // create base object
-  size_t obj_size = sizeof(struct object);
-  struct object *obj = (struct object*)allocate_heap(obj_size);
-  obj->type = STRING;
-  obj->data = str_obj;
-
-  // add trace whenever there is a malloc
-  //bytes_allocated += obj_size;
-  //bytes_allocated += str_size;
-
-  //list_push_tail(&objects, &obj->trace);
-
-  struct vm_value result;
-  result.type = OBJECT;
-  result.object = obj;  // this is the same for some reason
-
-  return result;
-}
-*/
-
+// @todo move this to object.h
 struct vm_value ALLOC_NATIVE_FUNC(void* handler) {
   // create base object
   size_t obj_size = sizeof(struct object);
@@ -81,8 +37,9 @@ struct vm_value ALLOC_NATIVE_FUNC(void* handler) {
   return result;
 }
 
+// @todo move this to constants.h 
 /**
- * Allocate space on the heap for globals array
+ * Allocate space on the heap for constants array
  */
 struct vm_value* ALLOC_CONSTANTS(struct vm_value* values) {
   size_t size = sizeof(values[0]) / sizeof(values);

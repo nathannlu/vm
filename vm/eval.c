@@ -46,7 +46,7 @@ void run() {
   */
 
   struct code_object* co = alloc_main();
-  ip = co->co;
+  ip = co->bytecode;
   struct Stack stack;
   initialize(&stack);
   struct callstack cstack;
@@ -170,7 +170,7 @@ void run() {
 
           // set the instruction pointer to 
           // the address bytes on the bytecode
-          ip = &co->co[address_index];
+          ip = &co->bytecode[address_index];
           printf("Jumping to bytecode index: 0x%04X, address: %p\n", address_index, ip);
         }
         break;
@@ -184,7 +184,7 @@ void run() {
         struct global g = co->globals[next_byte];
 
         // push constant value onto the stack
-        push(&stack, g.value);
+        push(&stack, *g.value);
 
         break;
 
@@ -199,7 +199,7 @@ void run() {
         // get value from top of stack
         x = peek(&stack, 0);
 
-        set_global(co->globals, next_byte, x);
+        set_global(co->globals, next_byte, &x);
 
         break;
 
@@ -258,8 +258,8 @@ void run() {
           // e.g. arg1 = index 0, arg2 = index 1;
           
           // set instruction pointer to the beginning of new bytecode
-          printf("Jumping to bytecode from (%p) to: %p\n", (void*)ip, (void*)&co->co[0]);
-          ip = &co->co[0];
+          printf("Jumping to bytecode from (%p) to: %p\n", (void*)ip, (void*)&co->bytecode[0]);
+          ip = &co->bytecode[0];
 
 
           //printf("got bytecode at: %p\n", (void*)cf->co);

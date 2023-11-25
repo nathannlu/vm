@@ -1,12 +1,13 @@
 CC = gcc
-CFLAGS = -Iinclude -Iobjects -g
+CFLAGS = -Iinclude -Iobjects -Ivm
 
 SRC_DIR = .
 OBJ_DIR = objects
 BUILD_DIR = build
+VM_DIR = vm
 
-# Find .c files in both SRC_DIR and OBJ_DIR
-SRC_FILES = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(OBJ_DIR)/*.c)
+# Find .c files in SRC_DIR, OBJ_DIR, and VM_DIR
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(OBJ_DIR)/*.c) $(wildcard $(VM_DIR)/*.c)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 
 TARGET = run
@@ -24,5 +25,6 @@ $(BUILD_DIR):
 .PHONY: clean
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR) $(OBJ_DIR)/*.o $(TARGET)
+
 
