@@ -16,7 +16,8 @@ uint8_t* ALLOC_BYTECODE(uint8_t* values, size_t size) {
   return array;
 }
 
-struct code_object* ALLOC_CODE(const char* name, struct vm_value* constants, struct global* globals, struct local* locals, uint8_t* bytecode) {
+struct code_object* new_code_object(const char* name, struct vm_value* constants, struct global* globals, struct local* locals, uint8_t* bytecode) {
+//struct code_object* new_code_object(const char* name, struct vm_value* constants, struct local* locals, uint8_t* bytecode) {
 
   size_t co_obj_size = sizeof(struct code_object);
   struct code_object *co_obj = (struct code_object*)allocate_heap(co_obj_size);
@@ -31,6 +32,11 @@ struct code_object* ALLOC_CODE(const char* name, struct vm_value* constants, str
   return co_obj;
 }
 
+
+
+/**
+ * TEMP CODE
+ */
 struct code_object* alloc_func1() {
   uint8_t bytecode[] = {
     OP_CONST,   0,  // push NUMBER(42.0) onto the stack
@@ -44,19 +50,20 @@ struct code_object* alloc_func1() {
     NUMBER(64.0),
   };
   struct global globals[10] = {
-    {"x", NUMBER(0.0)},
+    {"x", &NUMBER(0.0)},
   };
   // index on stack
   struct local locals[10] = {
     {"y", 0},
   };
 
-  struct code_object* co = ALLOC_CODE("func1", constants, globals, locals, bytecode);
+  struct code_object* co = new_code_object("func1", constants, globals, locals, bytecode);
+  //struct code_object* co = new_code_object("func1", constants, locals, bytecode);
   return co;
 }
-
 struct code_object* alloc_main() {
-  struct vm_value func_1 = ALLOC_OBJECT((void*)alloc_func1());
+  struct vm_value func_1 = object_to_vm_value(new_object_code_object((void*)alloc_func1()));
+  //struct vm_value func_1 = ALLOC_OBJECT((void*)alloc_func1());
 
   uint8_t bytecode[] = {
     OP_CONST,   1,  // push NUMBER(10.0) onto the stack
@@ -71,8 +78,8 @@ struct code_object* alloc_main() {
     NUMBER(10.0),
   };
   struct global globals[10] = {
-    {"x", NUMBER(10.0)},
-    {"y", NUMBER(20.0)},
+    {"x", &NUMBER(10.0)},
+    {"y", &NUMBER(20.0)},
   //  {"square", ALLOC_FUNC((void*)&test_func)},
     //{"sum", ALLOC_FUNC((void*)&sum_func)},
   };
@@ -82,7 +89,8 @@ struct code_object* alloc_main() {
     {"b", 1},
   };
 
-  struct code_object* co = ALLOC_CODE("main", constants, globals, locals, bytecode);
+  struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
+  //struct code_object* co = new_code_object("main", constants, locals, bytecode);
   return co;
 }
 

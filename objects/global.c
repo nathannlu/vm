@@ -41,7 +41,7 @@ void define_global(struct global globals[], char* name) {
   // add to globals array
 }
 
-void set_global(struct global globals[], int index, struct vm_value value) {
+void set_global(struct global globals[], int index, struct vm_value* value) {
   // @todo
   // check if index exists
 

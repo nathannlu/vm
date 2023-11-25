@@ -23,6 +23,7 @@ bool vm_value_cmp(struct vm_value value1, struct vm_value value2) {
 }
 
 // returns a vm_value
+/*
 struct vm_value ALLOC_OBJECT(void *value) {
   // create base object
   size_t obj_size = sizeof(struct object);
@@ -64,6 +65,7 @@ struct vm_value ALLOC_STRING(const char *value) {
 
   return result;
 }
+*/
 
 struct vm_value ALLOC_NATIVE_FUNC(void* handler) {
   // create base object

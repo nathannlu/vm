@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Iinclude -Iobjects
+CFLAGS = -Iinclude -Iobjects -g
 
 SRC_DIR = .
 OBJ_DIR = objects
