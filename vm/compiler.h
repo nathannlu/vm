@@ -2,41 +2,44 @@
 #define COMPILER_H
 
 #include "op_code.h"
+#include "value.h"
 #include "ast.h"
 
 #define MAX_BYTECODE_LENGTH 254
-
-
+#define MAX_CONSTANT_LENGTH 254
 
 
 /**
- * Sample AST
- * ---
- *
- * struct {
- *    type: 'ExpressionStatement',
- *    list_count: 1,
- *    expression: 
- *
- *      struct {
- *        type: 'NumericLiteral',
- *        value: 42
- *      }
- * }       
+ * Converts AST into bytecode
  */
-
-
 struct compiler {
   uint8_t* bytecode;
-  int count;
+  int count;          // bytecode length
+
+  struct vm_value constants[MAX_CONSTANT_LENGTH];
+  int constants_length;
 };
 
 void initialize_compiler(struct compiler* c) {
   // malloc bytecode;
   c->bytecode = (uint8_t*)malloc(sizeof(uint8_t) * MAX_BYTECODE_LENGTH);
   c->count = 0;
+
+  c->constants_length = 0;
 }
 
+int compiler_add_constant(struct compiler* c, struct vm_value* constant) {
+  if(c->constants_length == MAX_CONSTANT_LENGTH) {
+    // realloc
+  }
+
+  int index = c->constants_length;
+  c->constants[index] = *constant;
+
+  c->constants_length++;
+
+  return index;
+}
 
 // add op_code to bytecode
 void compiler_emit(struct compiler* c, uint8_t op_code) {
@@ -107,10 +110,12 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
     case NumericLiteral:
       compiler_emit(c, OP_CONST);
 
-      // add to globals array
+      // add to constant array
+      // constants.push
+      int index = compiler_add_constant(c,&NUMBER(ast->NumericLiteral.number));
 
       // emit the index to reference that variable
-      compiler_emit(c, 0);
+      compiler_emit(c, index);
 
       break;
 

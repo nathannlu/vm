@@ -21,9 +21,9 @@
 struct _allocation_list allocation_list;
 size_t bytes_allocated = 0;
 
-void exec(uint8_t* bytecode) {
+void exec(uint8_t* bytecode, struct vm_value* constants) {
   initialize_allocation_list(&allocation_list, 256);
-  return run(bytecode);
+  return run(bytecode, constants);
 }
 
 int main() {
@@ -37,7 +37,8 @@ int main() {
   compiler_gen(&c, ast);
 
   uint8_t* bytecode = c.bytecode;
-  exec(bytecode);
+  exec(bytecode, c.constants);
+
   compiler_emit(&c, OP_HALT);
   printf("Done compilation\n");
 

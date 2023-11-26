@@ -27,6 +27,6 @@ uint8_t* ALLOC_BYTECODE(uint8_t* values, size_t size);
 //struct code_object* new_code_object(const char* name, struct vm_value* constants, struct global* globals, struct local* locals, uint8_t* bytecode); 
 //struct code_object* new_code_object(const char* name, struct vm_value* constants, struct local* locals, uint8_t* bytecode); 
 //struct code_object* alloc_main();
-struct code_object* alloc_from_bytecode(uint8_t* bytecode);
+struct code_object* alloc_from_bytecode(uint8_t* bytecode, struct vm_value* constants);
 
 #endif

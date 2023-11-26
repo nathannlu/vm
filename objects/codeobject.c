@@ -90,13 +90,8 @@ struct code_object* alloc_main() {
   return co;
 }
 
-struct code_object* alloc_from_bytecode(uint8_t* bytecode) {
+struct code_object* alloc_from_bytecode(uint8_t* bytecode, struct vm_value* constants) {
 
-  // @todo move these to lists that the
-  // compiler can access
-  struct vm_value constants[10] = {
-    NUMBER(10.0),
-  };
   struct global globals[10] = {
     {"x", &NUMBER(10.0)},
     {"y", &NUMBER(20.0)},

@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "global.h"
+#include "value.h"
 
 uint8_t *ip;
 
@@ -38,14 +39,14 @@ uint16_t read_short() {
 }
 
 
-void run(uint8_t* bytecode) {
+void run(uint8_t* bytecode, struct vm_value* constants) {
   /*
   struct eval eval;
   eval.co = alloc_main();
   eval.ip = co->co;
   */
 
-  struct code_object* co = alloc_from_bytecode(bytecode);
+  struct code_object* co = alloc_from_bytecode(bytecode, constants);
   ip = co->bytecode;
   struct Stack stack;
   initialize(&stack);
@@ -83,7 +84,7 @@ void run(uint8_t* bytecode) {
         y = pop(&stack);
         x = pop(&stack);
 
-        if (y.type == NUMBER && x.type == NUMBER) {
+        if (y.type  == NUMBER && x.type == NUMBER) {
           // convert a and b to doubles
           double double_a = AS_NUMBER(x);
           double double_b = AS_NUMBER(y);
@@ -106,6 +107,69 @@ void run(uint8_t* bytecode) {
           result = object_to_vm_value(new_object_string_object(combined_string));
 
           push(&stack, result);
+        }
+
+        break;
+      case OP_SUB:
+        printf("instruction sub\n");
+
+        y = pop(&stack);
+        x = pop(&stack);
+
+        if (y.type  == NUMBER && x.type == NUMBER) {
+          // convert a and b to doubles
+          double double_a = AS_NUMBER(x);
+          double double_b = AS_NUMBER(y);
+
+          // sub
+          result = NUMBER(double_a - double_b); 
+
+          // put value back on the stack
+          push(&stack, result);
+        } else {
+          printf("OP_SUB not supported for non-numbers");
+        }
+
+        break;
+      case OP_MUL:
+        printf("instruction mul\n");
+
+        y = pop(&stack);
+        x = pop(&stack);
+
+        if (y.type  == NUMBER && x.type == NUMBER) {
+          // convert a and b to doubles
+          double double_a = AS_NUMBER(x);
+          double double_b = AS_NUMBER(y);
+
+          // sub
+          result = NUMBER(double_a * double_b); 
+
+          // put value back on the stack
+          push(&stack, result);
+        } else {
+          printf("OP_MUL not supported for non-numbers");
+        }
+
+        break;
+      case OP_DIV:
+        printf("instruction div\n");
+
+        y = pop(&stack);
+        x = pop(&stack);
+
+        if (y.type  == NUMBER && x.type == NUMBER) {
+          // convert a and b to doubles
+          double double_a = AS_NUMBER(x);
+          double double_b = AS_NUMBER(y);
+
+          // sub
+          result = NUMBER(double_a / double_b); 
+
+          // put value back on the stack
+          push(&stack, result);
+        } else {
+          printf("OP_DIV not supported for non-numbers");
         }
 
         break;
