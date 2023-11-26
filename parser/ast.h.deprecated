@@ -1,0 +1,61 @@
+#ifndef AST_H 
+#define AST_H
+
+enum ast_node_type {
+  Program,
+  ExpressionStatement,
+  IfStatement,
+  BlockStatement,
+  NumericLiteral,
+  StringLiteral, 
+  FunctionDeclaration,
+  Identifier,
+};
+
+struct ast_node {
+  enum ast_node_type  type;
+  int                 children_count;
+  union {
+    struct ast_node* body;
+    struct ast_node* expression;
+    char*            string;
+    char*            name;
+    int              number;
+  };
+};
+
+// creates a number
+struct ast_node* create_sample_ast() {
+  struct ast_node* node1 = (struct ast_node*)malloc(sizeof(struct ast_node));
+  struct ast_node* node2 = (struct ast_node*)malloc(sizeof(struct ast_node));
+
+  node2->type = NumericLiteral;
+  node2->number = 42;
+
+  node1->type = Program;
+  node1->body = node2;
+
+  return node1;
+}
+
+struct ast_node* create_sample_ast() {
+  struct ast_node* node1 = (struct ast_node*)malloc(sizeof(struct ast_node));
+  struct ast_node* node2 = (struct ast_node*)malloc(sizeof(struct ast_node));
+  struct ast_node* id_node = (struct ast_node*)malloc(sizeof(struct ast_node));
+
+  id_node->type = Identifier;
+  id_node->name = "x";
+
+  // if statement
+  node2->type = IfStatement;
+  node2->test = id_node;
+  node2->consequent = id_node;
+  node2->alternate = id_node;
+
+  node1->type = Program;
+  node1->body = node2;
+
+  return node1;
+}
+
+#endif

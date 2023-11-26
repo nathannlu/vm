@@ -90,4 +90,25 @@ struct code_object* alloc_main() {
   return co;
 }
 
+struct code_object* alloc_from_bytecode(uint8_t* bytecode) {
+
+  // @todo move these to lists that the
+  // compiler can access
+  struct vm_value constants[10] = {
+    NUMBER(10.0),
+  };
+  struct global globals[10] = {
+    {"x", &NUMBER(10.0)},
+    {"y", &NUMBER(20.0)},
+  };
+  // index on stack
+  struct local locals[10] = {
+    {"a", 0},
+    {"b", 1},
+  };
+
+  struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
+  return co;
+}
+
 

@@ -13,20 +13,51 @@
 
 #include "eval.h"
 
+#include "tokenizer.h"
+#include "compiler.h"
+#include "ast.h"
+
+
 struct _allocation_list allocation_list;
 size_t bytes_allocated = 0;
 
-void exec() {
+void exec(uint8_t* bytecode) {
   initialize_allocation_list(&allocation_list, 256);
-  return run();
+  return run(bytecode);
 }
 
 int main() {
-  exec();
+  //struct tokenizer tok;
+  struct compiler c;
+
+  struct ast_node* ast = create_sample_ast();
+
+
+  initialize_compiler(&c);
+  compiler_gen(&c, ast);
+
+  uint8_t* bytecode = c.bytecode;
+  exec(bytecode);
+  compiler_emit(&c, OP_HALT);
+  printf("Done compilation\n");
+
 
   printf("Bytes allocated: %zu\n", bytes_allocated);
   allocation_list_objects_free(&allocation_list);
   printf("Bytes allocated: %zu\n", bytes_allocated);
+
+
+
+  /*
+  char program[100] = "\"asd\"";
+  initialize_tokenizer(&tok, program);
+  tokenizer_get_next_token(&tok);
+
+  printf("hello world");
+  printf("hello world");
+
+
+  */
 
   return 0;
 }

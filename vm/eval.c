@@ -38,14 +38,14 @@ uint16_t read_short() {
 }
 
 
-void run() {
+void run(uint8_t* bytecode) {
   /*
   struct eval eval;
   eval.co = alloc_main();
   eval.ip = co->co;
   */
 
-  struct code_object* co = alloc_main();
+  struct code_object* co = alloc_from_bytecode(bytecode);
   ip = co->bytecode;
   struct Stack stack;
   initialize(&stack);
@@ -114,6 +114,7 @@ void run() {
 
         next_byte = read_byte();
 
+        // pop next two values off the stack
         y = pop(&stack);
         x = pop(&stack);
 
