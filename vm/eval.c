@@ -56,6 +56,7 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
 
   struct vm_value result;   // variable for results popped off the stack
   uint8_t next_byte;        // variable to hold next byte in the bytecode
+  uint16_t address_index;   // variable to hold next two bytes for jmp and jmp_if_false
   
   // variables for temp holding items that are popped off from the stack
   struct vm_value x;
@@ -73,6 +74,13 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         // move instruction pointer to next byte
         // and get next value
         next_byte = read_byte();
+
+       // printf("NUMBER(%f)\n", ptr->number);
+        printf("reading constant: %f\n", co->constants[0].number);
+        printf("reading constant: %f\n", co->constants[1].number);
+        printf("reading constant: %f\n", co->constants[2].number);
+        printf("reading constant: %f\n", co->constants[3].number);
+        printf("reading constant: %f\n", co->constants[4].number);
 
         // push it to the stack
         push(&stack, co->constants[next_byte]);
@@ -227,17 +235,28 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         // check if value on stack has a false boolean
         bool is_false = AS_BOOLEAN(pop(&stack)) == false;
 
-        if(is_false) {
-          // next two bytes are the address bit
-          // read_short reads and combines
-          // the next two bytes
-          uint16_t address_index = read_short();
+        // next two bytes are the address bit
+        // read_short reads and combines
+        // the next two bytes
+        address_index = read_short();
 
+        if(is_false) {
           // set the instruction pointer to 
           // the address bytes on the bytecode
           ip = &co->bytecode[address_index];
-          printf("Jumping to bytecode index: 0x%04X, address: %p\n", address_index, ip);
+          printf("Jumping to bytecode index: %u, address: %p\n", address_index, ip);
         }
+        break;
+      case OP_JMP:
+        // next two bytes are the address bit
+        // read_short reads and combines
+        // the next two bytes
+        address_index = read_short();
+
+        // set the instruction pointer to 
+        // the address bytes on the bytecode
+        ip = &co->bytecode[address_index];
+        printf("Jumping to bytecode index: %u, address: %p\n", address_index, ip);
         break;
 
       case OP_GET_GLOBAL:

@@ -18,6 +18,13 @@ enum binary_expression_map {
   SUB,
   MUL,
   DIV,
+
+  LESS_THAN,
+  GREATER_THAN,
+  EQUAL,
+  GREATER_EQUAL_THAN,
+  LESS_EQUAL_THAN,
+  NOT_EQUAL
 };
 
 struct Program {

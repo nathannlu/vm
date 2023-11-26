@@ -48,7 +48,6 @@ int main() {
   printf("Bytes allocated: %zu\n", bytes_allocated);
 
 
-
   /*
   char program[100] = "\"asd\"";
   initialize_tokenizer(&tok, program);

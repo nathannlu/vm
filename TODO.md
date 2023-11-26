@@ -1,3 +1,6 @@
-- scoping for local variables
-
-- move scope up instead of setting it to NULL in ```OP_SCOPE_EXIT```
+- loops 
+- blocks & scopes
+    - def variables
+    - scoping for local variables
+    - move scope up instead of setting it to NULL in ```OP_SCOPE_EXIT```
+- func declaration
