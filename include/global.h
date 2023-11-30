@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_ARRAY_SIZE 10
+#define MAX_GLOBAL_ARRAY_SIZE 50
 #define MAX_GLOBAL_NAME_SIZE 10
 
 struct global {
@@ -13,16 +13,19 @@ struct global {
   struct vm_value* value;
 };
 
-/**
- * Allocate space on the heap for globals array
- */
-struct global* ALLOC_GLOBALS(struct global* values);
+struct globals {
+  struct global   globals[MAX_GLOBAL_ARRAY_SIZE];
+  int             count;
+};
 
-/**
- * Adds a global struct to globals array
- */
-void define_global(struct global globals[], char* name);
+
+void initialize_globals(struct globals* globals);
+int define_global(struct globals* globals, char* name);
+struct global* new_global(char* name);
+int get_global_index(struct globals* globals_arr, const char* name);
+
+// deprecated funcs
+struct global* ALLOC_GLOBALS(struct global* values);
 void set_global(struct global globals[], int index, struct vm_value* value);
-int get_global_index(struct global globals[], const char* name);
 
 #endif

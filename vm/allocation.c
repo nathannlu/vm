@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "allocation.h"
 
-
-
 void initialize_allocation_list(struct _allocation_list* list, size_t capacity) {
   list->allocations = (struct allocation*)malloc(sizeof(struct allocation) * capacity);
   list->capacity = capacity;

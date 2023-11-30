@@ -9,22 +9,6 @@ struct ast_node*  new_ast_node(struct ast_node ast) {
 
 // creates a number
 struct ast_node* create_sample_ast() {
-  struct ast_node* term1 = AST_NEW(Program,
-    AST_NEW(BinaryExpression,
-      ADD, 
-      AST_NEW(NumericLiteral, 4),
-      AST_NEW(BinaryExpression,
-        ADD,
-        AST_NEW(NumericLiteral,2),
-        AST_NEW(BinaryExpression,
-          ADD,
-          AST_NEW(NumericLiteral,7),
-          AST_NEW(NumericLiteral,9),  // this value gets dealloced
-        )
-      )
-    )
-  );
-
   struct ast_node* term_ = AST_NEW(Program,
     AST_NEW(IfStatement,
       AST_NEW(BinaryExpression,
@@ -37,6 +21,30 @@ struct ast_node* create_sample_ast() {
     )
   );
 
+  struct ast_node* term1 = AST_NEW(Program,
+    AST_NEW(BinaryExpression,
+      ADD, 
+      AST_NEW(NumericLiteral, 4),
+      AST_NEW(NumericLiteral, 4),
+    )
+  );
 
-  return term1;
+  struct ast_node* termx = AST_NEW(Program,
+    AST_NEW(VariableDeclaration,
+      AST_NEW(Identifier, "x"),
+      AST_NEW(NumericLiteral, 4),
+    )
+  );
+
+  // assignment
+  struct ast_node* term2 = AST_NEW(Program,
+    AST_NEW(AssignmentExpression,
+      SIMPLE_ASSIGN,
+      AST_NEW(Identifier, "x"),
+      AST_NEW(NumericLiteral, 2),
+    ),
+  );
+
+
+  return term2;
 }
