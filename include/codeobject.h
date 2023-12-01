@@ -6,7 +6,6 @@
 #include "local.h"
 #include "object.h"
 #include "op_code.h"
-#include "global.h"
 
 #define MAX_CODE_OBJECT_NAME_SIZE 10
 
@@ -14,7 +13,7 @@ struct code_object {
   char name[MAX_CODE_OBJECT_NAME_SIZE];
 
   struct vm_value *constants;
-  struct global *globals;
+  struct globals *globals;
   struct local *locals;
 
   // bytecode;
@@ -23,10 +22,6 @@ struct code_object {
 };
 
 uint8_t* ALLOC_BYTECODE(uint8_t* values, size_t size);
-
-//struct code_object* new_code_object(const char* name, struct vm_value* constants, struct global* globals, struct local* locals, uint8_t* bytecode); 
-//struct code_object* new_code_object(const char* name, struct vm_value* constants, struct local* locals, uint8_t* bytecode); 
-//struct code_object* alloc_main();
-struct code_object* alloc_from_bytecode(uint8_t* bytecode, struct vm_value* constants);
+struct code_object* new_code_object(const char* name, struct vm_value* constants, struct globals* globals, struct local* locals, uint8_t* bytecode);
 
 #endif

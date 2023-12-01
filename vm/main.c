@@ -21,27 +21,37 @@
 struct _allocation_list allocation_list;
 size_t bytes_allocated = 0;
 
-void exec(uint8_t* bytecode, struct vm_value* constants) {
+void exec(uint8_t* bytecode, struct vm_value* constants, struct globals* globals) {
   initialize_allocation_list(&allocation_list, 256);
-  return run(bytecode, constants);
+  return run(bytecode, constants, globals);
 }
 
 int main() {
+  // allocate global object in heap
+  struct globals globals;       // init globals struct
+  initialize_globals(&globals);
+
+  struct vm_value constants[MAX_GLOBAL_ARRAY_SIZE];
+
   //struct tokenizer tok;
   struct compiler c;
+  initialize_compiler(&c, constants, &globals);
 
   struct ast_node* ast = create_sample_ast();
 
-
-  initialize_compiler(&c);
   compiler_gen(&c, ast);
 
-  uint8_t* bytecode = c.bytecode;
-  exec(bytecode, c.constants);
+  // manual testing bytecode
+  //compiler_emit(&c, OP_GET_GLOBAL);
+  //compiler_emit(&c, 0);
 
+  // ending
   compiler_emit(&c, OP_HALT);
   printf("Done compilation\n");
 
+  // Run bytecode
+  uint8_t* bytecode = c.bytecode;
+  exec(bytecode, constants, &globals);
 
   printf("Bytes allocated: %zu\n", bytes_allocated);
   allocation_list_objects_free(&allocation_list);
@@ -52,10 +62,6 @@ int main() {
   char program[100] = "\"asd\"";
   initialize_tokenizer(&tok, program);
   tokenizer_get_next_token(&tok);
-
-  printf("hello world");
-  printf("hello world");
-
 
   */
 

@@ -36,6 +36,9 @@ enum binary_expression_map {
 struct Program {
   struct ast_node* body;
 };
+struct BlockStatement {
+  struct ast_node* body;
+};
 struct NumericLiteral {
   int number;
 };
@@ -61,11 +64,13 @@ struct IfStatement {
   struct ast_node* consequent;
   struct ast_node* alternate;
 };
+
 struct ast_node {
   enum ast_node_type  type;
   struct ast_node*    next;
   union {
     struct Program              Program;
+    struct BlockStatement       BlockStatement;
     struct Identifier           Identifier;
     struct NumericLiteral       NumericLiteral;
     struct BinaryExpression     BinaryExpression;

@@ -26,6 +26,6 @@ extern uint8_t *ip; // instruction pointer - always points to the next instructi
 
 uint8_t read_byte();
 uint16_t read_short();
-void run(uint8_t* bytecode, struct vm_value* constants);
+void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals);
 
 #endif

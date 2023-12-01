@@ -3,6 +3,7 @@
 
 #include "op_code.h"
 #include "value.h"
+#include "global.h"
 #include "ast.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -15,29 +16,22 @@
  * Converts AST into bytecode
  */
 struct compiler {
-  uint8_t* bytecode;
-  int count;          // bytecode length
+  uint8_t*          bytecode;
+  int               count;          // bytecode length
+  struct vm_value*  constants;
+  struct globals*   globals;
 
-  struct vm_value constants[MAX_CONSTANT_LENGTH];
-  int constants_length;   // always points to next empty slot in arr to be filled
-                          
-  struct globals* globals;
+  int               constants_length;   // always points to next empty slot in arr to be filled
 
   //struct vm_value locals[MAX_CONSTANT_LENGTH];
 };
 
-void initialize_compiler(struct compiler* c) {
+void initialize_compiler(struct compiler* c, struct vm_value* constants, struct globals* globals) {
   // malloc bytecode;
   c->bytecode = (uint8_t*)malloc(sizeof(uint8_t) * MAX_BYTECODE_LENGTH);
   c->count = 0;
-
-  // @todo
-  // possible bug (declared local scope)
-  struct globals globals;       // init globals struct
-  c->globals = &globals;
-
-  initialize_globals(c->globals);
-
+  c->constants = constants;
+  c->globals = globals;
   c->constants_length = 0;
 }
 
@@ -78,7 +72,6 @@ void compiler_emit(struct compiler* c, uint8_t op_code) {
 // bytecode from ast
 void compiler_gen(struct compiler* c, struct ast_node* ast) {
 
-
   // variables for temp data storage inside
   // switch statement
   int index;
@@ -89,6 +82,15 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
       compiler_gen(c, ast->Program.body);
       break;
 
+    case BlockStatement:
+      struct ast_node* current = ast->BlockStatement.body;
+      while (current != NULL) {
+        // Compile node inside linked list
+        compiler_gen(c, current);
+        current = current->next;
+      }
+
+      break;
 
     case BinaryExpression:
 
@@ -167,6 +169,13 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
 
       break;
 
+    case Identifier:
+      index = get_global_index(c->globals, ast->Identifier.name);
+
+      compiler_emit(c, OP_GET_GLOBAL);
+      compiler_emit(c, index);
+      
+      break;
 
     // this can only be ran for code that has
     // their variable declared
@@ -259,7 +268,6 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
       compiler_emit(c, index);
 
       break;
-
 
     case StringLiteral:
       break;

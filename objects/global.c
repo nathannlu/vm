@@ -5,7 +5,6 @@ void initialize_globals(struct globals* globals) {
   globals->count = 0;
 }
 
-
 /**
  * Initialize new globals to 0
  */
@@ -13,7 +12,7 @@ struct global* new_global(char* name) {
   struct global* g = (struct global*)allocate_heap(sizeof(struct global));
   strcpy(g->name, name);
   //g->name = name;
-  g->value = &NUMBER(0.0);
+  g->value = NUMBER(0.0);
 
   return g;
 }
@@ -59,16 +58,20 @@ int get_global_index(struct globals* globals_arr, const char* name) {
 }
 
 
-// DEPRECATED
-void set_global(struct global globals[], int index, struct vm_value* value) {
-  // @todo
-  // check if index exists
+// this function is only used from inside the vm evaluation loop
+// @todo
+// check if index exists
+void set_global(struct globals* globals_arr, int index, struct vm_value value) {
 
-  globals[index].value = value;
+  globals_arr->globals[index].value = value;
   return;
 }
 
+
+
+
 /**
+ * @WILL BE DEPRECATED SOON
  * Allocate space on the heap for globals array
  */
 struct global* ALLOC_GLOBALS(struct global* values) {
@@ -82,3 +85,4 @@ struct global* ALLOC_GLOBALS(struct global* values) {
 
   return array;
 }
+

@@ -109,6 +109,9 @@ void print_stack(const struct Stack* stack) {
           else if(ptr->object->type == FUNCTION) {
             printf("FUNCTION()\n");
           }
+          else if(ptr->object->type == CODE) {
+            printf("CODE()\n");
+          }
           else {
             printf("Unknown Type\n");
           }

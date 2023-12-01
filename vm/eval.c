@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "global.h"
+#include "codeobject.h"
 #include "value.h"
 
 uint8_t *ip;
@@ -38,15 +39,43 @@ uint16_t read_short() {
   return result;
 }
 
+// Function to clone a vm_value array
+struct vm_value* clone_constants(const struct vm_value* source, size_t length) {
+  // Check for null pointer or other error conditions
+  if (source == NULL) {
+    // Handle error, return, or set an error flag
+    return NULL;
+  }
 
-void run(uint8_t* bytecode, struct vm_value* constants) {
-  /*
-  struct eval eval;
-  eval.co = alloc_main();
-  eval.ip = co->co;
-  */
+  // Allocate memory for the new vm_value array
+  struct vm_value* clone = (struct vm_value*)malloc(length * sizeof(struct vm_value));
 
-  struct code_object* co = alloc_from_bytecode(bytecode, constants);
+  // Check if memory allocation was successful
+  if (clone == NULL) {
+    // Handle memory allocation failure
+    return NULL;
+  }
+
+  // Copy each element of the source array
+  for (size_t i = 0; i < length; ++i) {
+    clone[i] = source[i];
+    // If the object is dynamically allocated, you might need to deep copy it
+    // clone[i].object = createCopyOfObject(source[i].object);
+  }
+
+  // Return the pointer to the cloned array
+  return clone;
+}
+
+void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals) {
+
+  // index on stack
+  struct local locals[10] = {
+    {"a", 0},
+    {"b", 1},
+  };
+
+  struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
   ip = co->bytecode;
   struct Stack stack;
   initialize(&stack);
@@ -64,6 +93,7 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
   struct vm_value z;
 
   for(;;) {
+
     switch (read_byte()) {
       case OP_HALT:
         printf("instruction halt\n");
@@ -76,11 +106,13 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         next_byte = read_byte();
 
        // printf("NUMBER(%f)\n", ptr->number);
+        /*
         printf("reading constant: %f\n", co->constants[0].number);
         printf("reading constant: %f\n", co->constants[1].number);
         printf("reading constant: %f\n", co->constants[2].number);
         printf("reading constant: %f\n", co->constants[3].number);
         printf("reading constant: %f\n", co->constants[4].number);
+        */
 
         // push it to the stack
         push(&stack, co->constants[next_byte]);
@@ -265,10 +297,10 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         next_byte = read_byte();
 
         // look in globals pool for constant
-        struct global g = co->globals[next_byte];
+        //struct global g = co->globals->globals[next_byte];
 
         // push constant value onto the stack
-        push(&stack, *g.value);
+        push(&stack, co->globals->globals[next_byte].value);
 
         break;
 
@@ -281,9 +313,13 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         uint8_t next_byte = read_byte();
 
         // get value from top of stack
-        x = peek(&stack, 0);
+        //x = peek(&stack, 0);
+        x = pop(&stack);
 
-        set_global(co->globals, next_byte, &x);
+        co->globals->globals[next_byte].value = x;
+
+        //globals_arr->globals[index].value = value;
+        //set_global(co->globals, next_byte, x);
 
         break;
 
@@ -438,6 +474,8 @@ void run(uint8_t* bytecode, struct vm_value* constants) {
         printf("Unknown opcode\n");
 
     }
+
+    // switch statement end
 
     printf("---\n");
     printf("Instruction pointer: %p\n", (void*)ip);

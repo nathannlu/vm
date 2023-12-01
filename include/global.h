@@ -8,24 +8,28 @@
 #define MAX_GLOBAL_ARRAY_SIZE 50
 #define MAX_GLOBAL_NAME_SIZE 10
 
+// Definition of a global variable
 struct global {
   char name[MAX_GLOBAL_NAME_SIZE];
-  struct vm_value* value;
+  struct vm_value value;
 };
 
+// Struct for hosting a list of global variables
 struct globals {
   struct global   globals[MAX_GLOBAL_ARRAY_SIZE];
   int             count;
 };
 
 
+struct global* new_global(char* name);
+
 void initialize_globals(struct globals* globals);
 int define_global(struct globals* globals, char* name);
-struct global* new_global(char* name);
 int get_global_index(struct globals* globals_arr, const char* name);
+void set_global(struct globals* globals_arr, int index, struct vm_value value);
 
-// deprecated funcs
+// @deprecated
 struct global* ALLOC_GLOBALS(struct global* values);
-void set_global(struct global globals[], int index, struct vm_value* value);
+struct globals* clone_globals(const struct globals* source);
 
 #endif
