@@ -40,10 +40,8 @@ struct token get_next_token() {
   skip_whitespace();
 
   if (*input == '\0') {
-    printf("null");
     return (struct token){END_OF_INPUT, 0};
   } else if (isdigit(*input)) {
-    printf("int");
     int num = 0;
 
     // Move to next characters
@@ -89,6 +87,27 @@ struct token get_next_token() {
   } else if (*input == ';') {
     advance();
     return (struct token){SEMICOLON, 0};
+
+  } else if (*input == '(') {
+    advance();
+    return (struct token){LPAREN, 0};
+
+  } else if (*input == ')') {
+    advance();
+    return (struct token){RPAREN, 0};
+
+  }
+  else if (strncmp(input, "if", 2) == 0 && !isalnum(input[2])) {
+    advance();
+    advance();
+    return (struct token){IF, 0};
+
+  } else if (strncmp(input, "else", 4) == 0 && !isalnum(input[4])) {
+    advance();
+    advance();
+    advance();
+    advance();
+    return (struct token){ELSE, 0};
 
   } else {
     // Handle other characters if needed

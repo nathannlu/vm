@@ -19,45 +19,14 @@ struct token consume_token(enum token_type type) {
 
   // @todo
   // verify the type
+  if(current.type != type) {
+    printf("Consume_token error: mismatch types %d\n", type);
+  }
 
   lookahead_token = get_next_token();
 
   return current;
 }
-
-
-// If statement looks like...
-// 'if' '(' 'Expression' ')' Statement 'else' Statement
-/*
-struct ast_node* parse_if_statement() {
-  printf("hello");
-
-  consume_token(IF);
-  consume_token(LPAREN);
-
-  struct ast_node* test = parse_expression();
-
-  consume_token(RPAREN);
-
-  struct ast_node* consequent = parse_statement();
-
-  // Check lookahead to see if it 
-  // contains 'else' keyword
-  struct ast_node* alternate;
-  if(true) { 
-    consume_token(ELSE);
-    alternate = parse_statement();
-  } else {
-    alternate = NULL;
-  }
-
-  return AST_NEW(IfStatement,
-    test,
-    consequent,
-    alternate,
-  );
-}
-*/
 
 struct ast_node* parse_numeric_literal() {
   struct token tok =  consume_token(INTEGER);
@@ -70,6 +39,48 @@ struct ast_node* parse_literal() {
       return parse_numeric_literal();
   }
 }
+
+// If statement looks like...
+// 'if' '(' 'Expression' ')' Statement 'else' Statement
+struct ast_node* parse_if_statement() {
+
+  consume_token(IF);
+  consume_token(LPAREN);
+
+  struct ast_node* test = parse_expression();
+
+  consume_token(RPAREN);
+
+  struct ast_node* consequent = parse_statement();
+  consume_token(SEMICOLON);
+
+  // Check lookahead to see if it 
+  // contains 'else' keyword
+  consume_token(ELSE);
+
+  struct ast_node* alternate = parse_statement();
+  //struct ast_node* alternate = AST_NEW(NumericLiteral, 9);
+  consume_token(SEMICOLON);
+
+  // @todo
+  // support no 'else'
+  /*
+  if(true) { 
+    consume_token(ELSE);
+    alternate = parse_statement();
+  } else {
+    alternate = NULL;
+  }
+  */
+
+  return AST_NEW(IfStatement,
+    test,
+    consequent,
+    alternate,
+  );
+}
+
+
 
 struct ast_node* parse_statement_list() {
   struct ast_node* statement_head = parse_statement();
@@ -147,6 +158,9 @@ struct ast_node* parse_statement() {
     // 4 < 5;
     case INTEGER:
       return parse_expression();
+
+    case IF:
+      return parse_if_statement();
   }
 }
 

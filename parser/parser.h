@@ -8,6 +8,7 @@ void initialize_parser();
 struct token consume_token(enum token_type type);
 struct ast_node* parse_program();
 struct ast_node* parse_statement();
+struct ast_node* parse_expression();
 
 
 
