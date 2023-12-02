@@ -9,6 +9,7 @@ struct ast_node* new_ast_node(struct ast_node ast) {
 }
 
 
+/*
 struct ast_node* ast_construct_body_statement() {
   struct ast_node* var_declar = AST_NEW(Program,
     AST_NEW(VariableDeclaration,
@@ -45,15 +46,5 @@ struct ast_node* ast_construct_body_statement() {
 
   return bs;
 }
+*/
 
-// creates a number
-struct ast_node* create_sample_ast() {
-
-  struct ast_node* _term3 = ast_construct_body_statement();
-
-  struct ast_node* term3 = AST_NEW(Program,
-    _term3,
-  );
-
-  return term3;
-}
