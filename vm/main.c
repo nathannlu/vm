@@ -65,7 +65,7 @@ int main() {
 
   //exec();
 
-  char input_str[] = "3; 4; 6; 8;";
+  char input_str[] = "3 > 4;";
   init_tokenizer(input_str);
 
   // Get the first token

@@ -13,8 +13,14 @@ enum token_type {
   MINUS,
   MULTIPLY,
   DIVIDE,
+  GREATER,
+  LESS,
+  GREATEREQUAL,
+  LESSEQUAL,
+
   LPAREN,
   RPAREN,
+
   END_OF_INPUT
 };
 

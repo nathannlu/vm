@@ -64,16 +64,12 @@ struct ast_node* parse_numeric_literal() {
   return AST_NEW(NumericLiteral, tok.value);
 }
 
-
-
 struct ast_node* parse_literal() {
   switch (lookahead_token.type) {
     case INTEGER:
       return parse_numeric_literal();
   }
 }
-
-
 
 struct ast_node* parse_statement_list() {
   struct ast_node* statement_head = parse_statement();
@@ -93,27 +89,66 @@ struct ast_node* parse_statement_list() {
 }
 
 
-// Function to parse a statement
-struct ast_node* parse_statement() {
+// handles all binary expressions
+struct ast_node* parse_expression() {
+  struct ast_node* left = parse_literal();
 
-  return parse_literal();
-  
-  /*
-  switch (lookahead_token.type) {
-    case DEF:
-      return parse_variable_statement();
-    case LPAREN:
-      return parse_block_statement();
-    case IF:
-      return parse_if_statement();
-    default:
-      printf("Unexpected token");
+  while(lookahead_token.type == PLUS || lookahead_token.type == MINUS || lookahead_token.type == GREATER || lookahead_token.type == LESS) { 
+    if(lookahead_token.type == PLUS) {
+      struct token operator = consume_token(PLUS);
+      struct ast_node* right = parse_literal();
+
+      left = AST_NEW(BinaryExpression,
+        ADD,
+        left,
+        right
+      );
+    } else if (lookahead_token.type == MINUS) {
+      struct token operator = consume_token(MINUS);
+      struct ast_node* right = parse_literal();
+
+      left = AST_NEW(BinaryExpression,
+        SUB,
+        left,
+        right
+      );
+    } else if (lookahead_token.type == LESS) {
+      struct token operator = consume_token(LESS);
+      struct ast_node* right = parse_literal();
+
+      left = AST_NEW(BinaryExpression,
+        LESS_THAN,
+        left,
+        right
+      );
+    } else if (lookahead_token.type == GREATER) {
+      struct token operator = consume_token(GREATER);
+      struct ast_node* right = parse_literal();
+
+      left = AST_NEW(BinaryExpression,
+        GREATER_THAN,
+        left,
+        right
+      );
+    }
   }
-    */
+
+  return left;
 }
 
+// Function to parse a statement
+struct ast_node* parse_statement() {
+  switch (lookahead_token.type) {
 
-
+    // if next token is a number, render expression
+    //    if next token is an operation, render binary operator
+    // handles operations such as:
+    // 3 + 4;
+    // 4 < 5;
+    case INTEGER:
+      return parse_expression();
+  }
+}
 
 struct ast_node* parse_program() {
   struct ast_node* body = parse_statement_list();

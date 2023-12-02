@@ -52,7 +52,10 @@ struct token get_next_token() {
 
     return (struct token){INTEGER, num};
 
-  } else if (isalpha(*input)) {
+  } 
+  /*
+  // handle strings
+  else if (isalpha(*input)) {
     struct token tok;
     //tok.type = STRING;
 
@@ -65,12 +68,32 @@ struct token get_next_token() {
     //token.value.string[i] = '\0';
 
     //printf("{String, '%s'}\n", token.value.string);
+  }
+  */
+  else if (*input == '+') {
+    advance();
+    return (struct token){PLUS, 0};
+
+  } else if (*input == '-') {
+    advance();
+    return (struct token){MINUS, 0};
+
+  } else if (*input == '<') {
+    advance();
+    return (struct token){LESS, 0};
+
+  } else if (*input == '>') {
+    advance();
+    return (struct token){GREATER, 0};
+
   } else if (*input == ';') {
     advance();
     return (struct token){SEMICOLON, 0};
+
   } else {
-      // Handle other characters if needed
-      input++;
+    // Handle other characters if needed
+    printf("Unknown token");
+    input++;
   }
 }
 
