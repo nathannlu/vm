@@ -1,6 +1,4 @@
 - loops 
 - blocks & scopes
-    - def variables
-    - scoping for local variables
-    - move scope up instead of setting it to NULL in ```OP_SCOPE_EXIT```
+    - right now, if statements isnt using blocks for some reason
 - func declaration

@@ -8,6 +8,8 @@ enum token_type {
   ELSE,
   INTEGER,
   SEMICOLON,
+  ASSIGN,
+  ID,
   
   PLUS,
   MINUS,
@@ -20,14 +22,17 @@ enum token_type {
 
   LPAREN,
   RPAREN,
+  LBRACE,
+  RBRACE,
 
   END_OF_INPUT
 };
 
 // Token structure
 struct token {
-  enum token_type type;
-  int value; // For INTEGER tokens
+  enum token_type   type;
+  int               value; // For INTEGER tokens
+  char*             string; // For STRING and ID tokens
 };
 
 

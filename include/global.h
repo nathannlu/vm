@@ -29,7 +29,6 @@ int get_global_index(struct globals* globals_arr, const char* name);
 void set_global(struct globals* globals_arr, int index, struct vm_value value);
 
 // @deprecated
-struct global* ALLOC_GLOBALS(struct global* values);
-struct globals* clone_globals(const struct globals* source);
+//struct global* ALLOC_GLOBALS(struct global* values);
 
 #endif

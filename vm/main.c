@@ -20,6 +20,31 @@
 struct _allocation_list allocation_list;
 size_t bytes_allocated = 0;
 
+char* read_file(const char *filename) {
+    FILE *file = fopen(filename, "rb");  // Open the file in binary mode
+    if (!file) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char *buffer = (char*)malloc(file_size + 1);
+    if (!buffer) {
+        perror("Memory allocation error");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    fread(buffer, 1, file_size, file);
+    buffer[file_size] = '\0';
+
+    fclose(file);
+
+    return buffer;
+}
 
 static struct token current_token; // Current token being processed
 
@@ -30,11 +55,14 @@ void exec(struct ast_node* ast) {
   struct globals globals;       // init globals struct
   initialize_globals(&globals);
 
+  struct locals locals;       // init locals struct
+  initialize_locals(&locals);
+
   struct vm_value constants[MAX_GLOBAL_ARRAY_SIZE];
 
   //struct tokenizer tok;
   struct compiler c;
-  initialize_compiler(&c, constants, &globals);
+  initialize_compiler(&c, constants, &globals, &locals);
 
   //struct ast_node* ast = create_sample_ast();
 
@@ -51,7 +79,7 @@ void exec(struct ast_node* ast) {
   // Run bytecode
   uint8_t* bytecode = c.bytecode;
 
-  run(bytecode, constants, &globals);
+  run(bytecode, constants, &globals, &locals);
 
   printf("Bytes allocated: %zu\n", bytes_allocated);
   allocation_list_objects_free(&allocation_list);
@@ -75,21 +103,22 @@ int main(int argc, char *argv[]) {
     return 1; // Return with an error code
   }
 
-  char buffer[256];
-  while (fgets(buffer, sizeof(buffer), file) != NULL) {
-    //char input_str[] = "if (3 < 4) 3; else 6;";
-    init_tokenizer(buffer);
+  // Read the entire file into a buffer
+  char *file_content = read_file(argv[1]);
+  printf("%s", file_content);
 
-    // lookahead_token needs to be initialized to
-    // the first token
-    initialize_parser();
-    struct ast_node* program = parse_program();
+  //char input_str[] = "if (3 < 4) 3; else 6;";
+  init_tokenizer(file_content);
 
-    exec(program);
-  }
+  // lookahead_token needs to be initialized to
+  // the first token
+  initialize_parser();
+  struct ast_node* program = parse_program();
+
+  exec(program);
 
   // Close the file
-  fclose(file);
+  free(file_content);
 
   return 0;
 }

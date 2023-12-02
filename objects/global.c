@@ -72,6 +72,7 @@ void set_global(struct globals* globals_arr, int index, struct vm_value value) {
  * @WILL BE DEPRECATED SOON
  * Allocate space on the heap for globals array
  */
+/*
 struct global* ALLOC_GLOBALS(struct global* values) {
   size_t size = sizeof(values[0]) / sizeof(values);
   struct global* array = (struct global*)allocate_heap(size * sizeof(struct global));
@@ -83,4 +84,5 @@ struct global* ALLOC_GLOBALS(struct global* values) {
 
   return array;
 }
+*/
 

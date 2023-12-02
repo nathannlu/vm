@@ -20,7 +20,7 @@ struct token consume_token(enum token_type type) {
   // @todo
   // verify the type
   if(current.type != type) {
-    printf("Consume_token error: mismatch types %d\n", type);
+    printf("Consume_token error: expected type %d but got %d\n", type, current.type);
   }
 
   lookahead_token = get_next_token();
@@ -28,21 +28,31 @@ struct token consume_token(enum token_type type) {
   return current;
 }
 
-struct ast_node* parse_numeric_literal() {
-  struct token tok =  consume_token(INTEGER);
-  return AST_NEW(NumericLiteral, tok.value);
+static struct ast_node* parse_numeric_literal() {
+  int number = consume_token(INTEGER).value;
+  return AST_NEW(NumericLiteral, number);
 }
 
-struct ast_node* parse_literal() {
+static struct ast_node* parse_identifier() {
+  char* name = consume_token(ID).string;
+  return AST_NEW(Identifier, name);
+}
+
+static struct ast_node* parse_literal() {
   switch (lookahead_token.type) {
     case INTEGER:
       return parse_numeric_literal();
+    case ID:
+      return parse_identifier();
+
+    // @todo strings
   }
 }
 
+
 // If statement looks like...
 // 'if' '(' 'Expression' ')' Statement 'else' Statement
-struct ast_node* parse_if_statement() {
+static struct ast_node* parse_if_statement() {
 
   consume_token(IF);
   consume_token(LPAREN);
@@ -53,25 +63,20 @@ struct ast_node* parse_if_statement() {
 
   struct ast_node* consequent = parse_statement();
   consume_token(SEMICOLON);
+  
+  struct ast_node* alternate;
 
   // Check lookahead to see if it 
   // contains 'else' keyword
-  consume_token(ELSE);
-
-  struct ast_node* alternate = parse_statement();
-  //struct ast_node* alternate = AST_NEW(NumericLiteral, 9);
-  consume_token(SEMICOLON);
-
-  // @todo
-  // support no 'else'
-  /*
-  if(true) { 
+  if(true) {
     consume_token(ELSE);
+
     alternate = parse_statement();
+    consume_token(SEMICOLON);
   } else {
     alternate = NULL;
+
   }
-  */
 
   return AST_NEW(IfStatement,
     test,
@@ -80,15 +85,42 @@ struct ast_node* parse_if_statement() {
   );
 }
 
+// def x = 123;
+static struct ast_node* parse_variable_declaration() {
+  consume_token(DEF);
+
+  struct ast_node* id = parse_identifier();    // AST_NEW(Identifier, "x")
 
 
-struct ast_node* parse_statement_list() {
+  // check if next token is 
+  // ; or =
+  struct ast_node* init;
+  if (lookahead_token.type == SEMICOLON) {
+    init = NULL;
+  } else if (lookahead_token.type == ASSIGN) {
+    consume_token(ASSIGN);
+
+    init = parse_statement();
+  }
+
+  // why can i not consume a semicolon here?
+  // for some reason if i consume semicolon it 
+  // offsets the whole code.
+  //consume_token(SEMICOLON);
+
+  return AST_NEW(VariableDeclaration,
+    id,
+    init
+  );
+}
+
+static struct ast_node* parse_statement_list(enum token_type until) {
   struct ast_node* statement_head = parse_statement();
   struct ast_node* current_statement = statement_head;
 
   consume_token(SEMICOLON);
   
-  while(lookahead_token.type != END_OF_INPUT) {
+  while(lookahead_token.type != until) {
     struct ast_node* new_statement = parse_statement();
     consume_token(SEMICOLON);
 
@@ -99,6 +131,14 @@ struct ast_node* parse_statement_list() {
   return statement_head;
 }
 
+static struct ast_node* parse_block_statement() {
+  consume_token(LBRACE);
+  struct ast_node* body = parse_statement_list(RBRACE);
+  consume_token(RBRACE);
+
+  struct ast_node* block = AST_NEW(BlockStatement, body);
+  return block;
+}
 
 // handles all binary expressions
 struct ast_node* parse_expression() {
@@ -147,6 +187,7 @@ struct ast_node* parse_expression() {
   return left;
 }
 
+
 // Function to parse a statement
 struct ast_node* parse_statement() {
   switch (lookahead_token.type) {
@@ -157,14 +198,22 @@ struct ast_node* parse_statement() {
     // 3 + 4;
     // 4 < 5;
     case INTEGER:
+    case ID:
       return parse_expression();
+
+    case LBRACE:
+      return parse_block_statement();
 
     case IF:
       return parse_if_statement();
+
+    case DEF:
+      return parse_variable_declaration();
   }
 }
 
 struct ast_node* parse_program() {
-  struct ast_node* body = parse_statement_list();
-  struct ast_node* var_declar = AST_NEW(Program, body);
+  struct ast_node* body = parse_statement_list(END_OF_INPUT);
+  struct ast_node* program = AST_NEW(Program, body);
+  return program;
 }

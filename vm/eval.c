@@ -39,13 +39,15 @@ uint16_t read_short() {
   return result;
 }
 
-void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals) {
+void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals, struct locals* locals) {
 
   // index on stack
+  /*
   struct local locals[10] = {
     {"a", 0},
     {"b", 1},
   };
+  */
 
   struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
   ip = co->bytecode;
@@ -371,23 +373,23 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals)
         // @important
         // this assumes local variables are initialized at the 
         // start of the frame once we enter the frame
-        uint8_t local_index = read_byte();
+        next_byte = read_byte();
 
         // look in globals pool for constant
         if(stack.bp == NULL) {
           printf("No values found\n");
         } else {
-          struct vm_value l_result = stack.bp[local_index];
+          x = stack.bp[next_byte];
 
           // push constant value onto the stack
-          push(&stack, l_result);
+          push(&stack, x);
         }
 
         break;
 
       case OP_SET_LOCAL:
         printf("Instruction set local\n");
-        uint8_t _local_index = read_byte();
+        next_byte = read_byte();
 
         if(stack.bp == NULL) {
           printf("No values found\n");
@@ -399,8 +401,8 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals)
           // @important
           // this assumes local variables are initialized at the 
           // start of the frame once we enter the frame
-          struct vm_value to_set_local = peek(&stack, 0);
-          stack.bp[_local_index] = to_set_local;
+          x = peek(&stack, 0);
+          stack.bp[next_byte] = x;
         }
 
         break;
@@ -415,17 +417,23 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals)
         // after you are done with func,
         // 1. pop result
         // 2. pop all args.
-        //    ( + 1 for the func on stack too)
+        //    ( + 1 for the func on stack too)  // temp removed, add back later
         // 3. push result back to value stack
+        //
+        // --
+        // another thing is, what if there is
+        // no results in the block? e.g. just a
+        // variable declaration? this causes
+        // stack underflow
         result = pop(&stack);
-        for(int p = 0; p < next_byte + 1; p++) {
+        for(int p = 0; p < next_byte; p++) {
           pop(&stack);
         }
 
         // @todo
         // instead of setting bp = NULL, move
         // bp to the next scope up
-        stack.bp = NULL;
+        //stack.bp = NULL;
 
         push(&stack, result);
 

@@ -14,7 +14,7 @@ struct code_object {
 
   struct vm_value *constants;
   struct globals *globals;
-  struct local *locals;
+  struct locals *locals;
 
   // bytecode;
   //uint8_t *co;
@@ -22,6 +22,6 @@ struct code_object {
 };
 
 uint8_t* ALLOC_BYTECODE(uint8_t* values, size_t size);
-struct code_object* new_code_object(const char* name, struct vm_value* constants, struct globals* globals, struct local* locals, uint8_t* bytecode);
+struct code_object* new_code_object(const char* name, struct vm_value* constants, struct globals* globals, struct locals* locals, uint8_t* bytecode);
 
 #endif

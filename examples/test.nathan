@@ -1,1 +1,9 @@
-if (3 > 4) 3; else 6;
+def x = 0;
+
+if (x > 0) {
+  def a = 2;
+} else {
+  def b = 2;
+}
+
+x + b;
