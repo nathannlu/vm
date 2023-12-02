@@ -1,32 +1,28 @@
 #ifndef TOKENS_H 
 #define TOKENS_H
 
-
-struct tok_key_pair {
-  char key[10];
-  char value[10];
+// Token types
+enum token_type {
+  DEF,
+  IF,
+  ELSE,
+  INTEGER,
+  SEMICOLON,
+  
+  PLUS,
+  MINUS,
+  MULTIPLY,
+  DIVIDE,
+  LPAREN,
+  RPAREN,
+  END_OF_INPUT
 };
 
-struct tok_map {
-  const char*   data[100][2];
-  int           size;
-}
-
-
-
-struct tok_map myMap = {
-  // Initial key-value pairs
-  {
-    {"/^\\d+/", "NUMBER"}, 
-    {"/^\"[^\"]*\"/", "STRING"}
-    {"/^\'[^\']*\'/", "STRING"}
-  }, 
-
-  // Initial size
-  2 
+// Token structure
+struct token {
+  enum token_type type;
+  int value; // For INTEGER tokens
 };
-
-
 
 
 #endif

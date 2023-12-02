@@ -39,34 +39,6 @@ uint16_t read_short() {
   return result;
 }
 
-// Function to clone a vm_value array
-struct vm_value* clone_constants(const struct vm_value* source, size_t length) {
-  // Check for null pointer or other error conditions
-  if (source == NULL) {
-    // Handle error, return, or set an error flag
-    return NULL;
-  }
-
-  // Allocate memory for the new vm_value array
-  struct vm_value* clone = (struct vm_value*)malloc(length * sizeof(struct vm_value));
-
-  // Check if memory allocation was successful
-  if (clone == NULL) {
-    // Handle memory allocation failure
-    return NULL;
-  }
-
-  // Copy each element of the source array
-  for (size_t i = 0; i < length; ++i) {
-    clone[i] = source[i];
-    // If the object is dynamically allocated, you might need to deep copy it
-    // clone[i].object = createCopyOfObject(source[i].object);
-  }
-
-  // Return the pointer to the cloned array
-  return clone;
-}
-
 void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals) {
 
   // index on stack

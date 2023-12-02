@@ -23,9 +23,16 @@ struct ast_node* ast_construct_body_statement() {
         AST_NEW(Identifier, "x"),
         AST_NEW(NumericLiteral, 2),
       ),
-
-      AST_NEW(NumericLiteral, 5),   // this value gets dealloced
-      AST_NEW(NumericLiteral, 6),   // this value gets dealloced
+      AST_NEW(BinaryExpression,
+        ADD,
+        AST_NEW(NumericLiteral,7),
+        AST_NEW(NumericLiteral,9),  // this value gets dealloced
+      ),
+      AST_NEW(BinaryExpression,
+        SUB,
+        AST_NEW(NumericLiteral,7),
+        AST_NEW(NumericLiteral,9),  // this value gets dealloced
+      ),
     )
   );
 

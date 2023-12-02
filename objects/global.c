@@ -68,8 +68,6 @@ void set_global(struct globals* globals_arr, int index, struct vm_value value) {
 }
 
 
-
-
 /**
  * @WILL BE DEPRECATED SOON
  * Allocate space on the heap for globals array

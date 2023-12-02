@@ -1,30 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
-
-#include "op_code.h"
-#include "value.h"
-#include "global.h"
-#include "ast.h"
-#include <stdint.h>
-#include <stdio.h>
-
-#define MAX_BYTECODE_LENGTH 254
-#define MAX_CONSTANT_LENGTH 10
-
-
-/**
- * Converts AST into bytecode
- */
-struct compiler {
-  uint8_t*          bytecode;
-  int               count;          // bytecode length
-  struct vm_value*  constants;
-  struct globals*   globals;
-
-  int               constants_length;   // always points to next empty slot in arr to be filled
-
-  //struct vm_value locals[MAX_CONSTANT_LENGTH];
-};
+#include "compiler.h"
+#include <stdlib.h>
 
 void initialize_compiler(struct compiler* c, struct vm_value* constants, struct globals* globals) {
   // malloc bytecode;
@@ -35,9 +10,6 @@ void initialize_compiler(struct compiler* c, struct vm_value* constants, struct 
   c->constants_length = 0;
 }
 
-// @todo
-// there is something wrong with this function...
-// the constants disappear for some reason 
 int compiler_add_constant(struct compiler* c, const struct vm_value constant) {
   if(c->constants_length == MAX_CONSTANT_LENGTH) {
     // realloc
@@ -75,15 +47,21 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
   // variables for temp data storage inside
   // switch statement
   int index;
+  struct ast_node* current;
 
   switch(ast->type) {
     case Program:
+      current = ast->Program.body;
+      while (current != NULL) {
+        // Compile node inside linked list
+        compiler_gen(c, current);
+        current = current->next;
+      }
 
-      compiler_gen(c, ast->Program.body);
       break;
 
     case BlockStatement:
-      struct ast_node* current = ast->BlockStatement.body;
+      current = ast->BlockStatement.body;
       while (current != NULL) {
         // Compile node inside linked list
         compiler_gen(c, current);
@@ -277,4 +255,3 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
 // @todo free mem of compiler
 
 
-#endif
