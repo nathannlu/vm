@@ -10,6 +10,8 @@
 #include "object.h"
 #include "allocation.h"
 
+#define MAX_CONSTANTS_ARRAY_SIZE 50
+
 enum vm_value_type {
   NUMBER,
   BOOLEAN,
@@ -26,20 +28,17 @@ struct vm_value {
   };
 };
 
-// Function to compare two vm_value instances
-bool vm_value_cmp(struct vm_value value1, struct vm_value value2);
-
-// returns a vm_value
-//struct vm_value ALLOC_OBJECT(void *value);
-
-// returns a vm_value for string
-//struct vm_value ALLOC_STRING(const char *value);
+// Struct for hosting a list of global variables
+struct constants {
+  struct vm_value constants[MAX_CONSTANTS_ARRAY_SIZE];
+  int             count;
+};
 
 struct vm_value ALLOC_NATIVE_FUNC(void* handler);
-/**
- * Allocate space on the heap for globals array
- */
-struct vm_value* ALLOC_CONSTANTS(struct vm_value* values);
+//struct vm_value* ALLOC_CONSTANTS(struct vm_value* values);
+
+void initialize_constants(struct constants* constants);
+int add_constant(struct constants* constants_arr, struct vm_value* value);
 
 #define NUMBER(value) ((struct vm_value){NUMBER, .number = value})
 

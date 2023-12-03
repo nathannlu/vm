@@ -35,6 +35,27 @@ static struct ast_node* parse_numeric_literal() {
 
 static struct ast_node* parse_identifier() {
   char* name = consume_token(ID).string;
+
+  // Check next token to see if this 
+  // is a function call
+  // If next token is a (, it means it is
+  // a function call
+  if (lookahead_token.type == LPAREN) {
+    consume_token(LPAREN);
+
+    // @todo - handle arguments
+    struct ast_node* arguments = NULL;
+    // parse_function_arguments
+    struct ast_node* callee = AST_NEW(Identifier, name);
+
+    consume_token(RPAREN);
+
+    return AST_NEW(CallExpression, 
+      callee,
+      arguments
+    );
+  }
+
   return AST_NEW(Identifier, name);
 }
 
@@ -82,6 +103,58 @@ static struct ast_node* parse_if_statement() {
     test,
     consequent,
     alternate,
+  );
+}
+
+// used in func declaration
+// if this function is ran, it means it has
+// at least 1 parameter
+static struct ast_node* parse_function_parameters() {
+
+  //struct ast_node* left = parse_identifier(); 
+  char* name = consume_token(ID).string;
+  struct ast_node* left = AST_NEW(Identifier, name);
+
+  struct ast_node* current = left;
+
+  while(lookahead_token.type != RPAREN) {
+    consume_token(COMMA);
+    struct ast_node* new_id = parse_identifier();
+
+    current->next = new_id;
+    current = new_id;
+  }
+
+  return left;
+}
+
+static struct ast_node* parse_function_declaration() {
+  consume_token(FUNC);
+
+  // This doesnt use parse_identifiers anymore
+  // because I haven't figured out a way to
+  // differentiate between function call vs declaration
+  char* name = consume_token(ID).string;
+  struct ast_node* id =AST_NEW(Identifier, name);
+                                               
+  consume_token(LPAREN);
+
+  struct ast_node* head_param;
+  // Check if has params
+  if (lookahead_token.type == ID) {
+    head_param = parse_function_parameters();
+  } else {
+    head_param = NULL;
+  }
+
+  consume_token(RPAREN);
+
+  struct ast_node* body = parse_statement();
+
+  return AST_NEW(FunctionDeclaration,
+    id,
+    head_param,
+    body,
   );
 }
 
@@ -209,6 +282,9 @@ struct ast_node* parse_statement() {
 
     case DEF:
       return parse_variable_declaration();
+
+    case FUNC:
+      return parse_function_declaration();
   }
 }
 

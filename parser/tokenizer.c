@@ -128,7 +128,11 @@ struct token get_next_token() {
     advance();
     return (struct token){ASSIGN, 0, NULL};
 
-  } else if (strncmp(input, "if", 2) == 0 && !isalnum(input[2])) {
+  } else if (*input == ',') {
+    advance();
+    return (struct token){COMMA, 0, NULL};
+
+  }  else if (strncmp(input, "if", 2) == 0 && !isalnum(input[2])) {
     advance();
     advance();
     return (struct token){IF, 0, NULL};
@@ -145,7 +149,14 @@ struct token get_next_token() {
     advance();
     advance();
     return (struct token){DEF, 0,NULL};
+  } else if (strncmp(input, "func", 4) == 0 && !isalnum(input[4])) {
+    advance();
+    advance();
+    advance();
+    advance();
+    return (struct token){FUNC, 0,NULL};
   }
+
   // Handle identifier.
   // This code must be last so it doesn't
   // count other symbols as identifier

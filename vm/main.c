@@ -11,8 +11,8 @@
 
 #include "eval.h"
 
-#include "tokenizer.h"
 #include "compiler.h"
+#include "tokenizer.h"
 #include "ast.h"
 #include "parser.h"
 
@@ -77,9 +77,10 @@ void exec(struct ast_node* ast) {
   printf("Done compilation\n");
 
   // Run bytecode
-  uint8_t* bytecode = c.bytecode;
-
-  run(bytecode, constants, &globals, &locals);
+  //uint8_t* bytecode = c.bytecode;
+  
+  struct code_object* main_code_object = c.co;
+  run(main_code_object);
 
   printf("Bytes allocated: %zu\n", bytes_allocated);
   allocation_list_objects_free(&allocation_list);

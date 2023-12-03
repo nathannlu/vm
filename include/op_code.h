@@ -25,4 +25,6 @@
 
 #define OP_RETURN 0x15
 
+#define OP_POP 0x16
+
 #endif 

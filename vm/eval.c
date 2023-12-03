@@ -39,7 +39,10 @@ uint16_t read_short() {
   return result;
 }
 
-void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals, struct locals* locals) {
+//void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals) {
+void run(struct code_object* co) {
+
+  struct locals* locals = NULL;
 
   // index on stack
   /*
@@ -49,7 +52,8 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals,
   };
   */
 
-  struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
+  //struct code_object* co = new_code_object("main", constants, globals, locals, bytecode);
+
   ip = co->bytecode;
   struct Stack stack;
   initialize(&stack);
@@ -89,7 +93,7 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals,
         */
 
         // push it to the stack
-        push(&stack, co->constants[next_byte]);
+        push(&stack, co->constants->constants[next_byte]);
         break;
 
       case OP_ADD:
@@ -287,8 +291,7 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals,
         uint8_t next_byte = read_byte();
 
         // get value from top of stack
-        //x = peek(&stack, 0);
-        x = pop(&stack);
+        x = peek(&stack, 0);
 
         co->globals->globals[next_byte].value = x;
 
@@ -449,6 +452,10 @@ void run(uint8_t* bytecode, struct vm_value* constants, struct globals* globals,
         ip = caller_frame.ra;
         stack.bp = caller_frame.bp;
 
+      case OP_POP:
+        printf("Instruction pop\n");
+        pop(&stack);
+        break;
 
       default:
         printf("Unknown opcode\n");

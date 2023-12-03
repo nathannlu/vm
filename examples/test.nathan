@@ -1,9 +1,13 @@
 def x = 0;
 
-if (x > 0) {
-  def a = 2;
-} else {
+{
+  def a = 1;
   def b = 2;
-}
+  a + b;
+};
 
-x + b;
+if (x > 2) {
+  1;
+} else {
+  a;
+}

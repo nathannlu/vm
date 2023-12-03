@@ -1,7 +1,11 @@
-def a = 1;
+def x = 0;
 
-if (a > 2) {
-  3;
-} else {
-  2;  
-}
+func asd() {
+  def a = 1;
+  def b = 2;
+  a + b;
+};
+
+asd();
+
+x + 2;

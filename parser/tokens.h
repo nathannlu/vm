@@ -10,7 +10,8 @@ enum token_type {
   SEMICOLON,
   ASSIGN,
   ID,
-  
+  FUNC,
+  COMMA,
   PLUS,
   MINUS,
   MULTIPLY,
@@ -19,12 +20,10 @@ enum token_type {
   LESS,
   GREATEREQUAL,
   LESSEQUAL,
-
   LPAREN,
   RPAREN,
   LBRACE,
   RBRACE,
-
   END_OF_INPUT
 };
 

@@ -1,5 +1,4 @@
 #include "stack.h"
-#include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -65,6 +64,7 @@ struct vm_value peek(struct Stack *stack, size_t offset) {
   }
 }
 
+/*
 int get_index(struct Stack *stack, struct vm_value value) {
   if(is_empty(stack)) {
     printf("Stack underflow");
@@ -78,6 +78,7 @@ int get_index(struct Stack *stack, struct vm_value value) {
   }
   return -1;
 }
+*/
 
 void print_stack(const struct Stack* stack) {
   printf("Stack Pointer:%p\n", (void*)stack->sp);

@@ -1,4 +1,3 @@
 - loops 
 - blocks & scopes
     - right now, if statements isnt using blocks for some reason
-- func declaration

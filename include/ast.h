@@ -13,6 +13,7 @@ enum ast_node_type {
   AssignmentExpression,
   BinaryExpression,
   Identifier,
+  CallExpression,
 };
 
 enum assignment_expression_map {
@@ -54,6 +55,15 @@ struct VariableDeclaration {
   struct ast_node* id;     // this has to be identifier struct
   struct ast_node* init;
 };
+struct FunctionDeclaration {
+  struct ast_node* id;          // this has to be identifier struct
+  struct ast_node* params;      // linked list
+  struct ast_node* body;     
+};
+struct CallExpression {
+  struct ast_node* callee;     // this has to be identifier struct
+  struct ast_node* arguments;  // linked list  
+};
 struct AssignmentExpression {
   enum assignment_expression_map op;
   struct ast_node*            left;     // this has to be identifier struct
@@ -77,6 +87,8 @@ struct ast_node {
     struct AssignmentExpression AssignmentExpression;
     struct IfStatement          IfStatement;
     struct VariableDeclaration  VariableDeclaration;
+    struct FunctionDeclaration  FunctionDeclaration;
+    struct CallExpression       CallExpression;
   };
 };
 
