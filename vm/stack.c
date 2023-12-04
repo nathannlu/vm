@@ -34,8 +34,6 @@ void push(struct Stack *stack, struct vm_value value) {
   }
 }
 
-// @todo
-// does this actually delete the item from the stack?
 struct vm_value pop(struct Stack *stack) {
   if(is_empty(stack)) {
     printf("Stack underflow");
@@ -63,22 +61,6 @@ struct vm_value peek(struct Stack *stack, size_t offset) {
     return *(stack->sp  - offset);
   }
 }
-
-/*
-int get_index(struct Stack *stack, struct vm_value value) {
-  if(is_empty(stack)) {
-    printf("Stack underflow");
-    exit(EXIT_FAILURE);
-  } else {
-    for(struct vm_value* i = stack->sp; i > stack->bp; i--) {
-      if(vm_value_cmp(*i, value)) {
-        return (int)(i - stack->bp);
-      }
-    }
-  }
-  return -1;
-}
-*/
 
 void print_stack(const struct Stack* stack) {
   printf("Stack Pointer:%p\n", (void*)stack->sp);

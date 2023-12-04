@@ -22,6 +22,10 @@ struct code_object* new_code_object(const char* name) {
   size_t co_obj_size = sizeof(struct code_object);
   struct code_object *co_obj = (struct code_object*)allocate_heap(co_obj_size);
 
+
+
+
+
   uint8_t* bytecode = (uint8_t*)allocate_heap(sizeof(uint8_t) * MAX_BYTECODE_LENGTH);
   struct globals*   globals   = (struct globals*)allocate_heap(sizeof(struct globals));
   struct locals*    locals    = (struct locals*)allocate_heap(sizeof(struct locals));

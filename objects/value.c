@@ -18,6 +18,7 @@ int add_constant(struct constants* constants_arr, struct vm_value* value) {
 
 
 // @todo move this to object.h
+/*
 struct vm_value ALLOC_NATIVE_FUNC(void* handler) {
   // create base object
   size_t obj_size = sizeof(struct object);
@@ -31,6 +32,7 @@ struct vm_value ALLOC_NATIVE_FUNC(void* handler) {
 
   return result;
 }
+*/
 
 // @todo move this to constants.h 
 /**

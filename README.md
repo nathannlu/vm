@@ -13,3 +13,4 @@ It builds an executable "run" which when executed runs the virtual machine.
 
 This runs the test program.
 
+(3)

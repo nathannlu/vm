@@ -4,13 +4,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-// Global variables
 static char* input; // Pointer to the input string
 static struct token current_token; // Current token being processed
 
 // Function to advance to the next character in the input
 static void advance() {
   input++;
+}
+// Function to advance to the next character in the input
+static void advance_n(int n) {
+  input = input + n;
 }
 
 // Function to skip whitespace in the input
@@ -132,28 +135,19 @@ struct token get_next_token() {
     advance();
     return (struct token){COMMA, 0, NULL};
 
-  }  else if (strncmp(input, "if", 2) == 0 && !isalnum(input[2])) {
-    advance();
-    advance();
+  } else if (strncmp(input, "if", 2) == 0 && !isalnum(input[2])) {
+    advance_n(2);
     return (struct token){IF, 0, NULL};
 
   } else if (strncmp(input, "else", 4) == 0 && !isalnum(input[4])) {
-    advance();
-    advance();
-    advance();
-    advance();
+    advance_n(4);
     return (struct token){ELSE, 0, NULL};
 
   } else if (strncmp(input, "def", 3) == 0 && !isalnum(input[3])) {
-    advance();
-    advance();
-    advance();
+    advance_n(3);
     return (struct token){DEF, 0,NULL};
   } else if (strncmp(input, "func", 4) == 0 && !isalnum(input[4])) {
-    advance();
-    advance();
-    advance();
-    advance();
+    advance_n(4);
     return (struct token){FUNC, 0,NULL};
   }
 

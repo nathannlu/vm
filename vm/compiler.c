@@ -1,7 +1,11 @@
 #include "compiler.h"
+#include "op_code.h"
+#include "value.h"
+#include "local.h"
+#include "global.h"
 #include <stdlib.h>
 
-void initialize_compiler(struct compiler* c, struct vm_value* constants, struct globals* globals, struct locals* locals) {
+void initialize_compiler(struct compiler* c) {
   // malloc bytecode;
   c->count = 0;
   c->scope_level = 0;
@@ -9,14 +13,6 @@ void initialize_compiler(struct compiler* c, struct vm_value* constants, struct 
   // create the main code object
   struct code_object* main_code = new_code_object("main");
   c->co = main_code;
-
-  // compiler should not own these. these
-  // should be taken from the code object
-  /*
-  c->constants = constants;
-  c->globals = globals;
-  c->locals = locals;     // this array is only used in compiler to temporarily keep track of scope
-  */
 }
 
 // add op_code to bytecode
@@ -53,23 +49,6 @@ static void compiler_scope_exit(struct compiler* c) {
 
   c->scope_level--;
 }
-
-/*
-static int compiler_add_constant(struct compiler* c, const struct vm_value constant) {
-  if(c->constants_length == MAX_CONSTANT_LENGTH) {
-    // realloc
-  }
-
-  int index = c->constants_length;
-  c->co->constants[index] = constant;
-
-  printf("adding constant: %f to index %d\n", constant.number, index);
-
-  c->constants_length++;
-
-  return index;
-}
-*/
 
 static void compiler_patch_jmp_address(struct compiler* c, int tmp_addr_index, uint16_t patched_index) {
   c->co->bytecode[tmp_addr_index] = (patched_index >> 8) & 0xff;
@@ -227,12 +206,21 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
       // (so it can call itself recursively)
       index = add_local(c->co->locals, ast->FunctionDeclaration.id->Identifier.name, c->scope_level);
 
-      // @todo
-      // pop parameters and scope exit
+      // Add function parameters to locals
+      struct ast_node* curr = ast->FunctionDeclaration.params;
+      while(curr != NULL) {
+        add_local(c->co->locals, curr->Identifier.name, c->scope_level);
+        curr = curr->next;
+      }
 
       // Generate bytecode in the new code object
       compiler_gen(c, ast->FunctionDeclaration.body);
       struct vm_value func_1 = object_to_vm_value(new_object_code_object((void*)c->co));
+
+      // @todo
+      // check if FunctionDeclaration.body is a block
+      // if it isn't for some reason we need to manually
+      // pop the locals 
 
       compiler_emit(c, OP_RETURN);
 
@@ -269,17 +257,18 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
       // Fetch function and push it to top of stack
       compiler_gen(c, ast->CallExpression.callee);
 
-      // Count the arity
+      // Push the arguments onto the stack
       int arity = 0;
-      /*
-      while(ast->CallExpression.arguments->next != NULL) {
+      struct ast_node* current_node = ast->CallExpression.arguments;
+      while(current_node != NULL) {
+        compiler_gen(c, current_node);
         arity++;
+        current_node = current_node->next;
       }
-      */
 
       // Call the function
       compiler_emit(c, OP_CALL);
-      compiler_emit(c, 0);        // arg count
+      compiler_emit(c, arity);        // arg count
 
       break;
 
@@ -297,7 +286,7 @@ void compiler_gen(struct compiler* c, struct ast_node* ast) {
       else {
         index = get_global_index(c->co->globals, ast->Identifier.name);
         if(index == -1) {
-          printf("Identifier error: cannot find global\n");
+          printf("Compilation error: cannot find global '%s'\n", ast->Identifier.name);
           exit(EXIT_FAILURE);
         }
 

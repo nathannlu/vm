@@ -68,21 +68,4 @@ void set_global(struct globals* globals_arr, int index, struct vm_value value) {
 }
 
 
-/**
- * @WILL BE DEPRECATED SOON
- * Allocate space on the heap for globals array
- */
-/*
-struct global* ALLOC_GLOBALS(struct global* values) {
-  size_t size = sizeof(values[0]) / sizeof(values);
-  struct global* array = (struct global*)allocate_heap(size * sizeof(struct global));
-
-  // Copy values to the dynamic array
-  for (size_t i = 0; i < size; ++i) {
-    array[i] = values[i];
-  }
-
-  return array;
-}
-*/
 

@@ -14,7 +14,8 @@ struct code_object {
 
   struct constants  *constants;
   struct globals    *globals;
-  struct locals     *locals;
+  struct locals     *locals;  // This is only used during compile time 
+                              // to temporarily store variables
 
   uint8_t           *bytecode;
 };

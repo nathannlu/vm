@@ -14,6 +14,7 @@
 
 struct Stack {
   struct vm_value   data[STACK_LIMIT];
+  //struct vm_value   *data;
 
   // stack pointer - points to the latest value in the stack.
   // if there is none points to null

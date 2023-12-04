@@ -33,7 +33,44 @@ static struct ast_node* parse_numeric_literal() {
   return AST_NEW(NumericLiteral, number);
 }
 
-static struct ast_node* parse_identifier() {
+// used in func declaration
+// if this function is ran, it means it has
+// at least 1 parameter
+static struct ast_node* parse_function_parameters() {
+
+  //struct ast_node* left = parse_identifier(); 
+  char* name = consume_token(ID).string;
+  struct ast_node* left = AST_NEW(Identifier, name);
+
+  struct ast_node* current = left;
+
+  while(lookahead_token.type != RPAREN) {
+    consume_token(COMMA);
+    struct ast_node* new_id = parse_identifier();
+
+    current->next = new_id;
+    current = new_id;
+  }
+
+  return left;
+}
+static struct ast_node* parse_function_arguments() {
+  struct ast_node* left = parse_expression();
+  struct ast_node* current = left;
+
+  while(lookahead_token.type != RPAREN) {
+    consume_token(COMMA);
+    struct ast_node* new_arg = parse_expression();
+
+    current->next = new_arg;
+    current = new_arg;
+  }
+
+  return left;
+}
+
+
+struct ast_node* parse_identifier() {
   char* name = consume_token(ID).string;
 
   // Check next token to see if this 
@@ -41,12 +78,18 @@ static struct ast_node* parse_identifier() {
   // If next token is a (, it means it is
   // a function call
   if (lookahead_token.type == LPAREN) {
+    struct ast_node* callee = AST_NEW(Identifier, name);
+    struct ast_node* arguments;
+
     consume_token(LPAREN);
 
-    // @todo - handle arguments
-    struct ast_node* arguments = NULL;
-    // parse_function_arguments
-    struct ast_node* callee = AST_NEW(Identifier, name);
+    // Does this function have arguments?
+    if (lookahead_token.type != RPAREN) {
+      arguments = parse_function_arguments();
+    } else {
+      // No arguments
+      arguments = NULL;
+    }
 
     consume_token(RPAREN);
 
@@ -59,7 +102,7 @@ static struct ast_node* parse_identifier() {
   return AST_NEW(Identifier, name);
 }
 
-static struct ast_node* parse_literal() {
+struct ast_node* parse_literal() {
   switch (lookahead_token.type) {
     case INTEGER:
       return parse_numeric_literal();
@@ -106,27 +149,7 @@ static struct ast_node* parse_if_statement() {
   );
 }
 
-// used in func declaration
-// if this function is ran, it means it has
-// at least 1 parameter
-static struct ast_node* parse_function_parameters() {
 
-  //struct ast_node* left = parse_identifier(); 
-  char* name = consume_token(ID).string;
-  struct ast_node* left = AST_NEW(Identifier, name);
-
-  struct ast_node* current = left;
-
-  while(lookahead_token.type != RPAREN) {
-    consume_token(COMMA);
-    struct ast_node* new_id = parse_identifier();
-
-    current->next = new_id;
-    current = new_id;
-  }
-
-  return left;
-}
 
 static struct ast_node* parse_function_declaration() {
   consume_token(FUNC);

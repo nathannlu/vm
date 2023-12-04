@@ -12,15 +12,23 @@
 
 #define MAX_CONSTANTS_ARRAY_SIZE 50
 
+
+#define _vm_value_HEAD_EXTRA \
+  struct vm_value* next;     \
+  struct vm_value* prev;
+
+
+
 enum vm_value_type {
   NUMBER,
   BOOLEAN,
   OBJECT,
 };
 
+
 struct vm_value {
+  _vm_value_HEAD_EXTRA;
   enum vm_value_type  type;
-  //int                 scope;
   union {
     double          number;
     struct object*  object;   // Objects will be stored on the heap. So store the pointer in vm_value 
@@ -34,17 +42,17 @@ struct constants {
   int             count;
 };
 
-struct vm_value ALLOC_NATIVE_FUNC(void* handler);
+//struct vm_value ALLOC_NATIVE_FUNC(void* handler);
 //struct vm_value* ALLOC_CONSTANTS(struct vm_value* values);
 
 void initialize_constants(struct constants* constants);
 int add_constant(struct constants* constants_arr, struct vm_value* value);
 
-#define NUMBER(value) ((struct vm_value){NUMBER, .number = value})
+#define NUMBER(value) ((struct vm_value){0,0, NUMBER, .number = value})
 
 #define AS_NUMBER(vm_value) ((double)vm_value.number)
 
-#define BOOLEAN(value) ((struct vm_value){BOOLEAN, .boolean = value})
+#define BOOLEAN(value) ((struct vm_value){0,0, BOOLEAN, .boolean = value})
 #define AS_BOOLEAN(vm_value) ((bool)vm_value.boolean)
 
 //#define AS_STRING(vm_value) ((char*)vm_value.object->data)

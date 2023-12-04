@@ -3,7 +3,6 @@
 
 #include "tokens.h"
 
-
 // Function to initialize the tokenizer with input
 void init_tokenizer(char* input);
 

@@ -20,64 +20,21 @@
 struct _allocation_list allocation_list;
 size_t bytes_allocated = 0;
 
-char* read_file(const char *filename) {
-    FILE *file = fopen(filename, "rb");  // Open the file in binary mode
-    if (!file) {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
-    }
-
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    char *buffer = (char*)malloc(file_size + 1);
-    if (!buffer) {
-        perror("Memory allocation error");
-        fclose(file);
-        exit(EXIT_FAILURE);
-    }
-
-    fread(buffer, 1, file_size, file);
-    buffer[file_size] = '\0';
-
-    fclose(file);
-
-    return buffer;
-}
 
 static struct token current_token; // Current token being processed
 
 void exec(struct ast_node* ast) {
   initialize_allocation_list(&allocation_list, 256);
 
-  // allocate global object in heap
-  struct globals globals;       // init globals struct
-  initialize_globals(&globals);
-
-  struct locals locals;       // init locals struct
-  initialize_locals(&locals);
-
-  struct vm_value constants[MAX_GLOBAL_ARRAY_SIZE];
-
   //struct tokenizer tok;
   struct compiler c;
-  initialize_compiler(&c, constants, &globals, &locals);
-
-  //struct ast_node* ast = create_sample_ast();
+  initialize_compiler(&c);
 
   compiler_gen(&c, ast);
-
-  // manual testing bytecode
-  //compiler_emit(&c, OP_GET_GLOBAL);
-  //compiler_emit(&c, 0);
 
   // ending
   compiler_emit(&c, OP_HALT);
   printf("Done compilation\n");
-
-  // Run bytecode
-  //uint8_t* bytecode = c.bytecode;
   
   struct code_object* main_code_object = c.co;
   run(main_code_object);
@@ -87,6 +44,32 @@ void exec(struct ast_node* ast) {
   printf("Bytes allocated: %zu\n", bytes_allocated);
 
   return;
+}
+
+char* read_file(const char *filename) {
+  FILE *file = fopen(filename, "rb");  // Open the file in binary mode
+  if (!file) {
+    perror("Error opening file");
+    exit(EXIT_FAILURE);
+  }
+
+  fseek(file, 0, SEEK_END);
+  long file_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  char *buffer = (char*)malloc(file_size + 1);
+  if (!buffer) {
+    perror("Memory allocation error");
+    fclose(file);
+    exit(EXIT_FAILURE);
+  }
+
+  fread(buffer, 1, file_size, file);
+  buffer[file_size] = '\0';
+
+  fclose(file);
+
+  return buffer;
 }
 
 

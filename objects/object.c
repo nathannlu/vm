@@ -24,7 +24,7 @@ struct object* new_object_string_object(const char *value) {
   size_t obj_size = sizeof(struct object);
   struct object *obj = (struct object*)allocate_heap(obj_size);
   obj->type = STRING;
-  obj->data = str_obj;
+  obj->string = str_obj;
 
   return obj;
 }

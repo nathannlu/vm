@@ -1,11 +1,15 @@
+
 def x = 0;
 
-func asd() {
-  def a = 1;
-  def b = 2;
-  a + b;
+if(3>0){
+  def b = 5;
+} else {
+  def c = 6;
+}
+
+func asd(n) {
+  n + n;
 };
 
-asd();
+asd(2);
 
-x + 2;
